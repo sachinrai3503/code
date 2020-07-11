@@ -11,7 +11,7 @@ This project is for maintaing all the code that I write.
 	
 ## Technologies
 Codes are written in below languages:
-* C
+* C: c11
 * Java: java version "14" 2020-03-17
 * Python: 3.8.2
 	

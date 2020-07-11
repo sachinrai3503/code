@@ -1,3 +1,26 @@
+// https://www.geeksforgeeks.org/word-ladder-length-of-shortest-chain-to-reach-a-target-word/
+/*
+Given a dictionary, and two words ‘start’ and ‘target’ (both of same length).
+Find length of the smallest chain from ‘start’ to ‘target’ if it exists, 
+such that adjacent words in the chain only differ by one character and each word 
+in the chain is a valid word i.e., it exists in the dictionary. 
+
+It may be assumed that the ‘target’ word exists in dictionary and length of 
+all dictionary words is same.
+Example:
+Input: Dictionary = {POON, PLEE, SAME, POIE, PLEA, PLIE, POIN}
+       start = TOON
+       target = PLEA
+Output: 7
+TOON - POON - POIN - POIE - PLIE - PLEE - PLEA
+
+Input: Dictionary = {ABCD, EBAD, EBCD, XYZA}
+       Start = ABCV
+       End = EBAD
+Output: 4
+ABCV - ABCD - EBCD - EBAD
+*/
+
 import java.util.TreeSet;
 import java.util.ArrayList;
 
@@ -44,8 +67,8 @@ public class WordLadder{
 
     public static void main(String[] args) {
         String[] dictArr = {"hot","dot","dog","lot","log"};
-        String start = "hit";
-        String dest = "cog";
+        String start = "hot";
+        String dest = "log";
 
         TreeSet<String> dict = new TreeSet<String>();
         for(String s : dictArr){

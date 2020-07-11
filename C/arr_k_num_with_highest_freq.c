@@ -23,7 +23,7 @@ Output: 5 11 7 10
 */
 
 // Below is heap based solution
-// For linear time see python <>
+// For linear time see python list_k_num_with_highest_freq.py
 
 #include <stdio.h>
 #include <malloc.h>
