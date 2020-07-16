@@ -34,8 +34,8 @@ void pre(tree_node *root){
 int is_valid_BST(tree_node *root, int min, int max){
     if(root==NULL) return 1;
     if(root->data<min || root->data>max) return 0;
-    return is_valid_BST(root->left,min,root->data) &&
-        is_valid_BST(root->right,root->data,max);
+    return is_valid_BST(root->left,min,root->data-1) &&
+        is_valid_BST(root->right,root->data+1,max);
 }
 
 int is_BST(tree_node *root){
@@ -63,7 +63,7 @@ int main(){
     root->left->left = init_node(10);
     root->left->left->right = init_node(13);
     root->left->right = init_node(17);
-    root->left->right->left = init_node(14); // Wrong node
+    root->left->right->left = init_node(17); // Wrong node
     root->left->right->right = init_node(18);
     root->right = init_node(25);
     root->right->left = init_node(22);
