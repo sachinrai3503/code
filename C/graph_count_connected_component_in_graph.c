@@ -1,6 +1,21 @@
 // https://www.geeksforgeeks.org/find-number-of-islands/
 // https://www.geeksforgeeks.org/islands-in-a-graph-using-bfs/
 
+/*
+Given a boolean 2D matrix, find the number of islands.
+A group of connected 1s forms an island. 
+
+Example:
+Input : mat[][] = {{1, 1, 0, 0, 0},
+                   {0, 1, 0, 0, 1},
+                   {1, 0, 0, 1, 1},
+                   {0, 0, 0, 0, 0},
+                   {1, 0, 1, 0, 1} 
+Output : 5
+*/
+
+// For python based solution refer graph_count_connected_component.py
+
 #include <stdio.h>
 #include <malloc.h>
 #include <limits.h>

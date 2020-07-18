@@ -1,3 +1,15 @@
+// https://www.geeksforgeeks.org/design-a-data-structure-that-supports-insert-delete-search-and-getrandom-in-constant-time/
+
+/**
+Design a data structure that supports the following operations in Θ(1) time
+insert(x): Inserts an item x to the data structure if not already present.
+remove(x): Removes an item x from the data structure if present.
+search(x): Searches an item x in the data structure.
+getRandom(): Returns a random element from current set of elements
+*/
+
+// C version of it @DS_constanttime.c
+
 import java.util.HashMap;
 import java.util.Random;
 
@@ -91,7 +103,7 @@ class DataStructure{
     }
 }
 
-public class DS_with_O1 {
+public class DS_ConstantTime {
     public static void main(String[] args) {
         
         int[] insert = {1,2,3,4,5,6,7,8,9,4,5,10,1,3,3,2,5,6,7};

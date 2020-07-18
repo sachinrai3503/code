@@ -22,6 +22,8 @@ Output:
 All oranges can become rotten in 2-time frames.
 */
 
+// For python sol. refer queue_rotten_orange_problem.py
+
 #include <stdio.h>
 #include <malloc.h>
 #include <limits.h>

@@ -85,7 +85,7 @@ class WordKey implements Comparable<WordKey>{
     }
 }
 
-class Main{
+public class StringShortestKeyForEachStr {
 
     static ArrayList<WordKey> initList(String[] arr){
         ArrayList<WordKey> list = new ArrayList<WordKey>();
@@ -96,7 +96,8 @@ class Main{
     }
 
     public static void main(String[] args){
-        String[] arr = {"dog", "monkey", "bucket", "bulk", "bully","bullyw", "bullyww", "bullywwzaq"};
+        String[] arr = {"dog", "monkey", "bucket", "bulk", "bully","bullyw",
+             "bullyww", "bullywwzaq"};
         ArrayList<WordKey> word_list = initList(arr);
         System.out.println(word_list);
         Collections.sort(word_list);
