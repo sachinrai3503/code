@@ -1,101 +1,113 @@
+// https://www.geeksforgeeks.org/given-only-a-pointer-to-a-node-to-be-deleted-in-a-singly-linked-list-how-do-you-delete-it/?ref=lbp
+/*
+Given a pointer to a node to be deleted, delete the node. Note that we don’t 
+have pointer to head node.
+*/
+
+// Tried to handle the deletion of last node.
+
 #include <stdio.h>
 #include <malloc.h>
 #include <limits.h>
 
-typedef struct node{
+typedef struct SLL{
     int data;
-    struct node *next;
-}my_node;
+    struct SLL *next;
+}list_node;
 
-my_node* make_node(int data){
-    my_node *nw = (my_node*)malloc(sizeof(my_node));
-    if(nw){
-        nw->data = data;
-        nw->next = NULL;
+list_node* init_node(int data){
+    list_node *node = (list_node*)malloc(sizeof(list_node));
+    if(node){
+        node->data = data;
+        node->next = NULL;
     }
-    return nw;
+    return node;
 }
 
-my_node* make_list(my_node *head, int data){
-    my_node *nw = make_node(data);
-    nw->next = head;
-    return nw;
+typedef struct{
+    list_node *head;
+    list_node *last_node; // Only set when the last node is deleted
+}list;
+
+list* init_list(){
+    list *_list = (list*)malloc(sizeof(list));
+    if(_list){
+        _list->head = _list->last_node = NULL;
+    }
+    return _list;
 }
 
-void print_list(my_node *head){
-    while(head){
+int is_empty(list *_list){
+    if(_list->head==_list->last_node) return 1;
+    return 0;
+}
+
+list_node* get_node(list *_list, int data){
+    if(is_empty(_list)){
+        printf("Empty\n");
+        return NULL;
+    }
+    list_node *head = _list->head;
+    for(;head!=_list->last_node;head=head->next){
+        if(head->data==data) return head;
+    }
+    return NULL;
+}
+
+void print_list(list *_list){
+    list_node *head = _list->head;
+    for(;head!=_list->last_node;head=head->next){
         printf("%d ",head->data);
-        head = head->next;
     }
     printf("\n");
 }
 
-my_node* get_node(my_node *head, int data){
-    for(;head && head->data!=data;head=head->next);
-    return head;
+list* to_list(int ip[], int length){
+    list *_list = init_list();
+    list_node *prev = NULL;
+    int i = 0;
+    for(;i<length;i++){
+        list_node *node = init_node(ip[i]);
+        if(!prev) _list->head = node;
+        else prev->next = node;
+        prev = node;
+    }
+    return _list;
 }
 
-// https://www.geeksforgeeks.org/delete-a-node-from-linked-list-without-head-pointer/
-void delete_given_node(my_node *node){
-    if(node==NULL){
-        printf("Null node given\n");
-    }else if(node->next==NULL){
-        printf("Deleting last node. Requires head\n");
-    }else{
-        my_node *next = node->next;
-        node->data = next->data;
-        node->next = next->next;
-        next->next = NULL;
-        free(next);
+list_node* delete(list *_list, list_node *node){
+    if(is_empty(_list)){
+        printf("Ëmpty\n");
+        return NULL;
     }
-}
-
-//https://www.geeksforgeeks.org/delete-a-given-node-in-linked-list-under-given-constraints/
-/**
-1) It must accept a pointer to the start node as the first parameter 
-    and node to be deleted as the second parameter i.e., a pointer to head node is not global.
-2) It should not return a pointer to the head node.
-3) It should not accept pointer to pointer to the head node.
-
-You may assume that the Linked List never becomes empty.
-**/
-void delete_given_node_with_constraints(my_node *head, my_node *node){
-    if(head==NULL || node==NULL){
-        printf("Null node given\n");
-    }else if(head==node && head->next==NULL){
-        printf("Deleting the only node in the list. Set the head to NULL manually.");
-        free(node);
-    }else if(node->next==NULL){
-        my_node *temp = head;
-        for(;temp->next!=node;temp=temp->next);
-        temp->next = node->next;
-        free(node);
-    }else{
-        delete_given_node(node);
-    }
+   if(node->next==_list->last_node){
+       _list->last_node = node;
+       _list->last_node->next = NULL;
+       return node;
+   }
+   int temp = node->data;
+   list_node *next = node->next;
+   node->data = next->data;
+   node->next = next->next;
+   next->next = NULL;
+   next->data = temp;
+   return next;
 }
 
 int main(){
-    int ip[] = {1,2,3,4,5,6,7};
+    int ip[] = {1,2,3,4,5,6,7,8,9,10};
     int length = sizeof(ip)/sizeof(ip[0]);
-    int del_data_1 = 1;
-    int del_data_2 = 7;
 
-    my_node *head = NULL;
-    int i = length-1;
-    for(;i>=0;i--){
-        head = make_list(head,ip[i]);
+    list *_list = to_list(ip,length);
+    print_list(_list);
+
+    int x[] = {1,5,9,10,8,3,2,6,7,4};
+    int xlen = sizeof(x)/sizeof(x[0]);
+    int i = 0;
+    for(;i<xlen;i++){
+        list_node *node = delete(_list, get_node(_list,x[i]));
+        printf("Deleted = %d :: List>>",node->data);
+        print_list(_list);
     }
-    print_list(head);
-    
-    my_node *del_node_1 = get_node(head,del_data_1);
-    my_node *del_node_2 = get_node(head,del_data_2);
 
-    delete_given_node(del_node_1);
-    print_list(head);
-    printf("======================================\n");
-    delete_given_node_with_constraints(head,del_node_2);
-    print_list(head);
-
-    return 0;
 }
