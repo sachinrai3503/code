@@ -18,6 +18,10 @@ All inputs will be in lowercase.
 The order of your output does not matter.
 """
 
+# Here solution uses sort and dict.
+# For Sorting based solution see - string_print_all_anagram_together.c
+# For O(N*M) time based solution see StringPrintAllAnagramTogether.java.
+
 def to_list(ip_dict):
     ip_list = list()
     for value in ip_dict.values():

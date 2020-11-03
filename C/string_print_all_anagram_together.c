@@ -8,7 +8,8 @@ For example, if the given array is
 */
 
 // Here solution with sort is done.
-// For map based solution see dict_group_anagrams.py.
+// For sort & dict based solution see dict_group_anagrams.py.
+// For O(N*M) time based solution see StringPrintAllAnagramTogether.java.
 
 #include <stdio.h>
 #include <malloc.h>
