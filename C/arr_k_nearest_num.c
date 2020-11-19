@@ -11,6 +11,9 @@ Three closest values of x are 4, 6 and 7.
 Input : arr[] = {-10, -50, 20, 17, 80}, x = 20, k = 2
 Output : 17, 20 
 */
+
+// PriorityQueue bases sol - ArrKClosestNum.java
+
 #include <stdio.h>
 #include <malloc.h>
 #include <limits.h>
