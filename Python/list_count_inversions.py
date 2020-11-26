@@ -18,6 +18,9 @@ Input: arr[] = {3, 1, 2}
 Output: 2
 """
 
+# Note - This won't work for list/arr with duplicates.
+# See - arr_inversion_count.c for handling of duplicates.
+
 def _sort(list1,list2):
     """
     Sort list1 and also update the elements of list2
