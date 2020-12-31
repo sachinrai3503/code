@@ -25,6 +25,8 @@ Note:
 S only consists of '0' and '1' characters.
 """
 
+# Better implementaion of same logic in C - arr_flip_chr_to_make_str_monotonous_increasing.c
+
 def to_num(char):
     if char=='0': return 0
     if char=='1': return 1
