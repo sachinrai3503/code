@@ -1,4 +1,5 @@
 # https://www.geeksforgeeks.org/find-k-closest-elements-given-value/
+# https://leetcode.com/problems/find-k-closest-elements/
 """
 Given a sorted array arr[] and a value X, find the k closest elements to X in arr[].
 Examples:
@@ -10,6 +11,8 @@ Output: 30 39 42 45
 Note that if the element is present in array, then it should not be in output,
  only the other closest elements are required.
 """
+
+# NOTE - Better sol. in list_k_nearest_element_2.py
 
 INT_MAX = 99999999999
 

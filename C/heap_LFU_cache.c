@@ -1,5 +1,5 @@
 // https://www.geeksforgeeks.org/least-frequently-used-lfu-cache-implementation
-// https://leetcode.com/problems/lfu-cache
+// https://leetcode.com/problems/lfu-cache/
 /*
 Design and implement a data structure for Least Frequently Used (LFU) cache.
 
@@ -45,162 +45,147 @@ Constraints:
 #include <stdio.h>
 #include <malloc.h>
 
-typedef struct{
-    int key, value;
-    int freq, last_accessed_at;
-    int cache_index;
-}page;
+typedef struct heap_node {
+    int data;
+    int key;
+    int freq_used;
+    int last_used;
+    int heap_index;
+}node;
 
 typedef struct {
-    page **data;
-    int max_size;
+    node **data;
+    node **key_map;
     int cur_size;
-    page **page_index;
-    int counter;
+    int max_size;
+    int oper_ser_no;
 } LFUCache;
 
-page* init_page(int key, int value, int freq, int last_accessed_at){
-    page *_page = (page*)malloc(sizeof(page));
-    if(_page){
-        _page->key = key;
-        _page->value = value;
-        _page->freq = freq;
-        _page->last_accessed_at = last_accessed_at;
-        _page->cache_index = -1;
+node* init_heap_node(int key, int data){
+    node *_node = (node*)malloc(sizeof(node));
+    if(_node){
+        _node->key = key;
+        _node->data = data;
+        _node->freq_used = 0;
+        _node->last_used = -1;
+        _node->heap_index = -1;
     }
-    return _page;
+    return _node;
+}
+
+int compare(node *a, node *b){
+    if(a->freq_used>b->freq_used) return 1;
+    if(a->freq_used<b->freq_used) return -1;
+    if(a->last_used>b->last_used) return 1;
+    if(a->last_used<b->last_used) return -1;
+    return 0;
+}
+
+int is_full(LFUCache *LFU){
+    if(LFU->cur_size==LFU->max_size) return 1;
+    return 0;
+}
+
+int is_empty(LFUCache *LFU){
+    if(LFU->cur_size==0) return 1;
+    return 0;
+}
+
+void swap(node **a, node **b){
+    node *temp = *a;
+    *a = *b;
+    *b = temp;
+    int index = (*a)->heap_index;
+    (*a)->heap_index = (*b)->heap_index;
+    (*b)->heap_index = index;
+}
+
+void min_heapify(LFUCache *LFU, int index){
+    int left = index*2+1;
+    int right = index*2+2;
+    int min_index = index;
+    if(left<LFU->cur_size && compare(LFU->data[left], LFU->data[min_index])==-1) min_index = left;
+    if(right<LFU->cur_size && compare(LFU->data[right], LFU->data[min_index])==-1) min_index = right;
+    if(min_index!=index){
+        swap(LFU->data+index, LFU->data+min_index);
+        min_heapify(LFU, min_index);
+    }
+}
+
+node* delete_top(LFUCache *LFU){
+    if(is_empty(LFU)){
+        printf("Empty");
+        return NULL;
+    }else{
+        node *temp = LFU->data[0];
+        swap(LFU->data, LFU->data+(--LFU->cur_size));
+        min_heapify(LFU, 0);
+        temp->heap_index = -1;
+        LFU->key_map[temp->key] = NULL;
+        return temp;
+    }
+}
+
+void insert_heap(LFUCache *LFU, node *data){
+    if(is_full(LFU)){
+        printf("FULL\n");
+        return;
+    }else if(data){
+        LFU->data[LFU->cur_size] = data;
+        data->heap_index = LFU->cur_size++;
+        int parent_index = (LFU->cur_size-2)/2;
+        for(;parent_index>0;parent_index=(parent_index-1)/2){
+            min_heapify(LFU, parent_index);
+        }
+        if(parent_index==0){
+            min_heapify(LFU, parent_index);
+        }
+        LFU->key_map[data->key] = data;
+    }
 }
 
 LFUCache* lFUCacheCreate(int capacity) {
     LFUCache *lfu = (LFUCache*)malloc(sizeof(LFUCache));
     if(lfu){
-        lfu->data = (page**)calloc(capacity, sizeof(page*));
-        lfu->max_size = capacity;
+        lfu->data = (node**)calloc(capacity, sizeof(node*));
+        lfu->key_map = (node**)calloc(10001, sizeof(node*));
         lfu->cur_size = 0;
-        lfu->page_index = (page**)calloc(10000, sizeof(page*));
-        lfu->counter = 0;
+        lfu->max_size = capacity;
+        lfu->oper_ser_no = 0;
     }
     return lfu;
 }
 
-int is_full(LFUCache *lfu){
-    if(lfu->cur_size==lfu->max_size) return 1;
-    return 0;
-}
-
-int is_empty(LFUCache *lfu){
-    if(lfu->cur_size==0) return 1;
-    return 0;
-}
-
-void print_cache(LFUCache *lfu){
-    int i = 0;
-    for(;i<lfu->cur_size;i++){
-        page *_page = lfu->data[i];
-        printf("(k=%d-v=%d-f=%d-lac=%d-in=%d) ",_page->key, _page->value, 
-               _page->freq, _page->last_accessed_at, _page->cache_index);
-    }
-    printf("\n");
-}
-
-void swap(page **a, page **b){
-    page *temp = *a;
-    *a = *b;
-    *b = temp;
-    int t_index = (*a)->cache_index;
-    (*a)->cache_index = (*b)->cache_index;
-    (*b)->cache_index = t_index;
-}
-
-int compare(page *a, page *b){
-    if(a->freq<b->freq) return -1;
-    if(a->freq>b->freq) return 1;
-    if(a->last_accessed_at<b->last_accessed_at) return -1;
-    if(a->last_accessed_at>b->last_accessed_at) return 1;
-    return 0;
-}
-
-void min_heapify(LFUCache *lfu, int index){
-    int left = index*2+1;
-    int right = index*2+2;
-    int min_index = index;
-    if(left<lfu->cur_size && compare(lfu->data[left], lfu->data[min_index])==-1)
-        min_index = left;
-    if(right<lfu->cur_size && compare(lfu->data[right], lfu->data[min_index])==-1)
-        min_index = right;
-    if(min_index!=index){
-        swap(lfu->data+min_index, lfu->data+index);
-        min_heapify(lfu, min_index);
-    }
-}
-
-void insert_in_lfu_cache(LFUCache *lfu, page *_page){
-    if(is_full(lfu)){
-        printf("Full\n");
-        return;
-    }else if(_page){
-        _page->cache_index = lfu->cur_size;
-        lfu->data[lfu->cur_size++] = _page;
-        int parent_index = (lfu->cur_size-2)/2;
-        for(;parent_index>0;parent_index = (parent_index-1)/2){
-            min_heapify(lfu, parent_index);
-        }
-        if(parent_index==0){
-            min_heapify(lfu, parent_index);
-        }
-    }
-}
-
-page* delete_cache_top(LFUCache *lfu){
-    if(is_empty(lfu)){
-        printf("Empty\n");
-        return NULL;
-    }else{
-        page *temp = lfu->data[0];
-        swap(lfu->data,lfu->data + (--lfu->cur_size));
-        min_heapify(lfu, 0);
-        return temp;
-    }
-}
-
 int lFUCacheGet(LFUCache* obj, int key) {
-    obj->counter++;
-    if(obj->page_index[key]==NULL) return -1;
-    page *temp = obj->page_index[key];
-    temp->freq++;
-    temp->last_accessed_at = obj->counter;
-    min_heapify(obj, temp->cache_index);
-    // printf("Get=>");print_cache(obj);
-    return temp->value;
+    if(obj->key_map[key]==NULL) return -1;
+    node *_node = obj->key_map[key];
+    _node->freq_used++;
+    _node->last_used = ++obj->oper_ser_no;
+    min_heapify(obj, _node->heap_index);
+    return _node->data;
 }
 
 void lFUCachePut(LFUCache* obj, int key, int value) {
-    if(obj->max_size==0) return;
-    page *_page = NULL;
-    if(obj->page_index[key]!=NULL){
-        obj->counter++;
-        page *temp = obj->page_index[key];
-        temp->freq++;
-        temp->last_accessed_at = obj->counter;
-        temp->value = value;
-        min_heapify(obj, temp->cache_index);
+    node *_node = obj->key_map[key];
+    if(_node){
+        _node->data = value;
+        _node->freq_used++;
+        _node->last_used = ++obj->oper_ser_no;
+        min_heapify(obj, _node->heap_index);
     }else{
-        obj->counter++;
-        _page = init_page(key, value, 1, obj->counter);
         if(is_full(obj)){
-            page *t_page = delete_cache_top(obj);
-            obj->page_index[t_page->key] = NULL;
-            free(t_page);
+            delete_top(obj);
         }
-        insert_in_lfu_cache(obj, _page);
-        obj->page_index[_page->key] = _page;
+        _node = init_heap_node(key, value);
+        _node->freq_used = 1;
+        _node->last_used = ++obj->oper_ser_no;
+        insert_heap(obj, _node);
     }
-    // printf("Put=>");print_cache(obj);
 }
 
 void lFUCacheFree(LFUCache* obj) {
     free(obj->data);
-    free(obj->page_index);
+    free(obj->key_map);
     free(obj);
 }
 
