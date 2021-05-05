@@ -17,60 +17,45 @@ This is a variation of the standard problem:
 “Counting the number of connected components in an undirected graph”
 """
 
-class DisjointSet_Graph:
+class DJSet:
     def __init__(self, row, col):
-        self.row = row
-        self.col = col
-        self.parent = [[[i, j] for j in range(col)] for i in range(row)]
-        self.rank = [[0 for j in range(col)] for i in range(row)]
-
-    def find(self, i, j):
-        if self.parent[i][j][0] == i and self.parent[i][j][1] == j:
-            return self.parent[i][j]
+        self.parent = [[(i,j) for j in range(col)] for i in range(row)]
+        self.rank   = [[1 for j in range(col)] for i in range(row)]
+    
+    def find_parent(self, cell):
+        if self.parent[cell[0]][cell[1]]==cell: return cell
+        self.parent[cell[0]][cell[1]] = self.find_parent(self.parent[cell[0]][cell[1]])
+        return self.parent[cell[0]][cell[1]]
+    
+    def union(self, cell1, cell2):
+        parent1 = self.find_parent(cell1)
+        parent2 = self.find_parent(cell2)
+        if parent1==parent2: return
+        if self.rank[parent1[0]][parent1[1]]>self.rank[parent2[0]][parent2[1]]:
+            self.parent[parent2[0]][parent2[1]] = parent1
+        elif self.rank[parent1[0]][parent1[1]]<self.rank[parent2[0]][parent2[1]]:
+            self.parent[parent1[0]][parent1[1]] = parent2
         else:
-            self.parent[i][j] = self.find(
-                self.parent[i][j][0], self.parent[i][j][1])
-            return self.parent[i][j]
-
-    def union(self, i1, j1, i2, j2):
-        repr1 = self.find(i1, j1)
-        repr2 = self.find(i2, j2)
-        if repr1[0] == repr2[0] and repr1[1] == repr2[1]:
-            return
-        if self.rank[repr1[0]][repr1[1]] == self.rank[repr2[0]][repr2[1]]:
-            self.parent[repr1[0]][repr1[1]] = [repr2[0], repr2[1]]
-            self.rank[repr2[0]][repr2[1]] += 1
-        elif self.rank[repr1[0]][repr1[1]] < self.rank[repr2[0]][repr2[1]]:
-            self.parent[repr1[0]][repr1[1]] = [repr2[0], repr2[1]]
-        else:
-            self.parent[repr2[0]][repr2[1]] = [repr1[0], repr1[1]]
-
-def is_valid(matrix, row, col, i, j):
-    if i<0 or j<0 or i>=row or j>=col or matrix[i][j]=='0':
-        return False
-    return True
-
-def count_connected_component(mat):
-    count = 0
-    row = len(mat)
-    col = len(mat[0])
-    adj_cell = [[-1, 0, 1, 0],
-                [0, 1, 0, -1]]
-    dj_set = DisjointSet_Graph(row, col)
-    for i in range(row):
-        for j in range(col):
-            if mat[i][j] == '1':
-                for k in range(len(adj_cell[0])):
-                    ti, tj = i+adj_cell[0][k], j+adj_cell[1][k]
-                    if is_valid(mat, row, col, ti, tj):
-                        # print(ti,tj,'++')
-                        dj_set.union(i, j, ti, tj)
-    for i in range(row):
-        for j in range(col):
-            if mat[i][j] == '1' and dj_set.parent[i][j]==[i,j]:
-                count+=1
-    return count
-
+            self.parent[parent2[0]][parent2[1]] = parent1
+            self.rank[parent1[0]][parent1[1]]+=1
+            
 class Solution:
     def numIslands(self, grid: list[list[str]]) -> int:
-        return count_connected_component(grid)
+        count = 0
+        row = len(grid)
+        col = 0 if row==0 else len(grid[0])
+        djset = DJSet(row, col)
+        for i in range(row):
+            for j in range(col):
+                if grid[i][j]=='1':
+                    if i>0 and grid[i-1][j]=='1':
+                        djset.union((i-1,j), (i,j))
+                    if j<col-1 and grid[i][j+1]=='1':
+                        djset.union((i,j+1), (i,j))
+        # print(djset.rank)
+        # print(djset.parent)
+        for i in range(row):
+            for j in range(col):
+                if grid[i][j]=='1' and djset.parent[i][j]==(i, j):
+                    count+=1
+        return count

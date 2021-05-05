@@ -66,3 +66,16 @@ int maxProfit(int* prices, int pricesSize){
     }
     return max_profit;
 }
+
+// This method is more simple.
+int maxProfit(int* prices, int pricesSize){
+    int profit = 0;
+    int i = 1;
+    for(;i<pricesSize;i++){
+        int t_profit = prices[i] - prices[i-1];
+        if(t_profit>0){
+            profit+=t_profit;
+        }
+    }
+    return profit;
+}

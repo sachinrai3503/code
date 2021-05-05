@@ -1,4 +1,5 @@
 # https://www.geeksforgeeks.org/design-a-stack-that-supports-getmin-in-o1-time-and-o1-extra-space/
+# https://leetcode.com/problems/min-stack/
 """
 Design a Data Structure SpecialStack that supports all the stack operations
 like push(), pop(), isEmpty(), isFull() and an additional operation getMin() 
@@ -25,6 +26,8 @@ getmin() returns 18
 """
 # Below method is O(1) time O(1) space
 # For O(1) time O(n) space see stack_all_operation_plus_getmin_v1.py
+# Note - Even for max also formula to edit the element will be same.
+# 2*x – maxEle :: https://www.geeksforgeeks.org/find-maximum-in-a-stack-in-o1-time-and-o1-extra-space/
 
 import sys
 

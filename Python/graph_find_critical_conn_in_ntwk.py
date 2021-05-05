@@ -1,4 +1,4 @@
-# https://leetcode.com/problems/critical-connections-in-a-network
+# https://leetcode.com/problems/critical-connections-in-a-network/
 # https://www.geeksforgeeks.org/bridge-in-a-graph/
 """
 There are n servers numbered from 0 to n-1 connected by undirected
@@ -22,6 +22,9 @@ n-1 <= connections.length <= 10^5
 connections[i][0] != connections[i][1]
 There are no repeated connections.
 """
+
+# Here no need for visited arr. Just rec_stack index is enough.
+# See graph_find_critical_conn_in_ntwk2.py
 
 from sys import maxsize
 
