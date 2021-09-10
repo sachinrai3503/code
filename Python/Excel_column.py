@@ -1,5 +1,7 @@
 # https://www.geeksforgeeks.org/find-excel-column-name-given-number/
-# https://www.geeksforgeeks.org/find-excel-column-number-column-title/?ref=lbp
+# https://www.geeksforgeeks.org/find-excel-column-number-column-title/
+# https://leetcode.com/problems/excel-sheet-column-title/
+# https://leetcode.com/problems/excel-sheet-column-number/
 
 def get_column_name(col_num):
     """

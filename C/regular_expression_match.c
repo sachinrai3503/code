@@ -40,6 +40,9 @@ It is guaranteed for each appearance of the character '*', there will be a previ
 */
 
 // Note - Do check the related wildcard_pattern_match.c
+// Below isMatch1(...) will fail for test case : S = "spkm", P = "s*p*k*s*m"
+// Best solution is DP sol. at - regular_expression_match.py
+// Below isMatch(...) is recursive but correct.
 
 #include <string.h>
 #define false 0
@@ -47,7 +50,7 @@ It is guaranteed for each appearance of the character '*', there will be a previ
 
 typedef int bool;
 
-bool isMatch(char * s, char * p){
+bool isMatch1(char * s, char * p){
     int l1 = strlen(s);
     int l2 = strlen(p);
     int dot_astric_index_p = -1;
@@ -95,4 +98,39 @@ bool isMatch(char * s, char * p){
         j+=2;
     }
     return true;
+}
+
+// Correct sol. below.
+bool check(char *pat, int pat_len, int j){
+    while(j<pat_len){
+        if(j+1>=pat_len || pat[j+1]!='*') return false;
+        j+=2;
+    }
+    return true;
+}
+
+bool match_txt_with_pattern(char *s, int s_len, char *p, int p_len, int i, int j){
+    // printf("s_len=%d p_len=%d i=%d j=%d\n",s_len, p_len, i, j);
+    // if(i==s_len) printf("check=%d\n",check(s, s_len, j));
+    if(i==s_len) return check(p, p_len, j);
+    if(j==p_len) return false;
+    char txt = s[i];
+    char pat = p[j];
+    char next_pat = (j+1>=p_len)?'\0':p[j+1];
+    // printf("txt=%c pat=%c next_pat=%c\n", txt, pat, next_pat);
+    if(next_pat!='*'){
+        if(pat=='.' || txt==pat) return match_txt_with_pattern(s, s_len, p, p_len, i+1, j+1);
+        return false;
+    }else{
+        bool skip_pat = match_txt_with_pattern(s, s_len, p, p_len, i, j+2);
+        if(skip_pat) return true;
+        if(pat=='.' || txt==pat) return match_txt_with_pattern(s, s_len, p, p_len, i+1, j);
+        return false;
+    }
+}
+
+bool isMatch(char * s, char * p){
+    int s_len = strlen(s);
+    int p_len = strlen(p);
+    return match_txt_with_pattern(s, s_len, p, p_len, 0, 0);
 }

@@ -1,4 +1,5 @@
 // https://www.geeksforgeeks.org/minimum-steps-to-reach-a-destination/
+// https://leetcode.com/problems/reach-a-number/
 /*
 Given a number line from -infinity to +infinity. 
 You start at 0 and can go either to the left or to the right. 

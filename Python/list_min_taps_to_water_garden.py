@@ -71,3 +71,26 @@ class Solution:
             cur_reach = range_limit[cur_reach]
         if cur_reach == n:  return count
         return -1
+
+    # This logic is simillar to above but related to max jump to reach end of arr
+    def minTaps1(self, n: int, ranges: list[int]) -> int:
+        max_reaches = [0 for i in range(n+1)]
+        for i in range(n+1):
+            from_s = max(0, i - ranges[i])
+            till_s = min(n, i + ranges[i])
+            max_reaches[from_s] = max(max_reaches[from_s], till_s)
+        # print(max_reaches)
+        last_reach = 0
+        next_possible_reach = 0
+        count = 0
+        i = 0
+        while i<=n:
+            if i<=last_reach:
+                next_possible_reach = max(next_possible_reach, max_reaches[i])
+                i+=1
+            elif next_possible_reach>last_reach:
+                count+=1
+                last_reach = next_possible_reach
+                if last_reach == n: return count
+            else: return -1
+        return count+1

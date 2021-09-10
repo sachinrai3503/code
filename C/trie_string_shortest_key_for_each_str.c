@@ -1,4 +1,5 @@
 // https://www.geeksforgeeks.org/find-all-shortest-unique-prefixes-to-represent-each-word-in-a-given-list/
+// https://www.interviewbit.com/problems/shortest-unique-prefix/
 /*
 Given an array of words, find all shortest unique 
 prefixes to represent each word in the given array. 

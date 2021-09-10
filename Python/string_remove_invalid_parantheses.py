@@ -20,53 +20,42 @@ Input: ")("
 Output: [""]
 """
 
+# Added a better readable code around same logic
 
 from collections import deque
 
-def is_valid(ip):
-    count = 0
-    for c in ip:
-        if c=='(':
-            count+=1
-        elif c==')':
-            count-=1
-        if count<0:
-            return False
-    if count==0: return True
-    return False
-
-class NullNode:
-    def __init__(self):
-        self.value = -1
-
 class Solution:
-    def removeInvalidParentheses(self, s: str) -> List[str]:
+    
+    def is_balanced(self, s):
+        if s is None: return False
         count = 0
-        op = set()
-        already_visited = set()
+        for char in s:
+            if char==')': count-=1
+            elif char=='(': count+=1
+            if count<0: return False
+        if count!=0: return False
+        return True
+    
+    def removeInvalidParentheses(self, s: str) -> list[str]:
+        op_list = list()
+        visited = set()
         que = deque()
-        null_node = NullNode()
-        found_flag = False
         que.append(s)
-        already_visited.add(s)
-        que.append(null_node)
-        while len(que)>0 and que[0]!=null_node:
-            while len(que)>0 and que[0]!=null_node:
+        que.append(None)
+        visited.add(s)
+        while len(que)>0 and que[0]!=None:
+            while len(que)>0 and que[0]!=None:
                 temp = que.popleft()
-                if is_valid(temp): 
-                    found_flag = True
-                    op.add(temp)
-                if not found_flag:
-                    t_len = len(temp)
-                    for j in range(t_len):
-                        if temp[j]==')' or temp[j]=='(':
-                            next_str = temp[0:j] + temp[j+1:t_len]
-                            if next_str not in already_visited:
-                                que.append(next_str)
-                                already_visited.add(next_str)
+                if self.is_balanced(temp):
+                    op_list.append(temp)
+                len_temp = len(temp)
+                for i in range(len_temp):
+                    if temp[i] not in '()': continue
+                    t_s = temp[0:i] + temp[i+1:len_temp]
+                    if t_s not in visited:
+                        visited.add(t_s)
+                        que.append(t_s)
             que.popleft()
-            if found_flag: break
-            count+=1
-            que.append(null_node)
-        # print(count)
-        return op
+            if len(op_list)>0: return op_list
+            que.append(None)
+        return None
