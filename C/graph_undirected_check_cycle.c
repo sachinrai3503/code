@@ -1,5 +1,5 @@
-// https://www.geeksforgeeks.org/detect-cycle-undirected-graph/?ref=lbp
-// https://www.geeksforgeeks.org/detect-cycle-in-an-undirected-graph-using-bfs/?ref=rp
+// https://www.geeksforgeeks.org/detect-cycle-undirected-graph/
+// https://www.geeksforgeeks.org/detect-cycle-in-an-undirected-graph-using-bfs/
 
 #include <stdio.h>
 #include <malloc.h>

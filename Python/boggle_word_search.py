@@ -18,163 +18,218 @@ Output: Following words of the dictionary are present
          QUIZ
 """
 
-adj_offset = [[-1, -1, -1, 0, 1, 1, 1, 0],
-              [-1, 0, 1, 1, 1, 0, -1, -1]]
-
-
-def to_index(chr):
-    _ord = ord(chr)
-    if 65 <= _ord <= 90:
-        return _ord-65
-    elif 90 <= _ord <= 122:
-        return _ord-97
-    return None
-
-
 class TrieCell:
-    def __init__(self, chr):
-        self.chr = chr
-        self.is_last_cell = False
-        self.child = None
-
-    def print_trie_cell(self, op_list):
-        op_list.append(self.chr)
-        if self.is_last_cell:
-            print(op_list)
-        if self.child is not None:
-            self.child.print_trie_node(op_list)
-        op_list.pop()
-
+    def __init__(self, char, is_end_cell = False, next = None):
+        self.char = char
+        self.is_end_cell = is_end_cell
+        self.next = next
+    
+    def print_trie_cell(self, op:list):
+        op.append(self.char)
+        if self.next is None: print(op)
+        else: 
+            if self.is_end_cell: print(op)
+            self.next.print_trie_node(op)
+        op.pop()
 
 class TrieNode:
-    def __init__(self):
-        self.trie_cells = [None]*26
+    def __init__(self, size = 26):
+        self.cells = [None for i in range(size)]
+        self.size = size
+        self.active_cells_count = 0
 
-    def get_cell(self, index):
-        return self.trie_cells[index]
-
-    def set_cell(self, index, trie_cell):
-        self.trie_cells[index] = trie_cell
-
-    def print_trie_node(self, op_list):
-        for cell in self.trie_cells:
-            if cell is not None:
-                cell.print_trie_cell(op_list)
-
+    def print_trie_node(self, op:list):
+        for i in range(self.size):
+            if self.cells[i] is not None:
+                self.cells[i].print_trie_cell(op)
 
 class Trie:
-    def __init__(self):
-        self.trie_node = None
-
+    def __init__(self, max_depth):
+        self.root = None
+        self.max_depth = max_depth
+        
     def print_trie(self):
-        if self.trie_node:
-            self.trie_node.print_trie_node(list())
-
-    def _insert_word(self, trie_node, word, index):
-        if index == len(word):
-            return None
-        char_index = to_index(word[index])
-        if trie_node is None:
-            trie_node = TrieNode()
-        trie_cell = trie_node.get_cell(char_index)
-        if not trie_cell:
-            trie_cell = TrieCell(word[index])
-            trie_node.set_cell(char_index, trie_cell)
-        cell_child = self._insert_word(trie_cell.child, word, index+1)
-        if cell_child is None:
-            trie_cell.is_last_cell = True
-        else:
-            trie_cell.child = cell_child
-        return trie_node
-
-    def insert_word_in_trie(self, word):
-        self.trie_node = self._insert_word(self.trie_node, word, 0)
-
-
-class SearchWord:
-    def __init__(self, word_trie, board):
-        """
-        @param word_trie : Words in dict as trie.
-        @param board : 2D board to make the words with.
-        """
-        self.words = list()
-        self.word_trie = word_trie
+        if self.root is None: print('Empty')
+        else: self.root.print_trie_node(list())
+    
+    def insert_in_trie(self):
+        pass
+    
+    def search_in_trie(self, word):
+        t_root = self.root
+        if t_root is None: return word==''
+        i, word_len = 0, len(word)
+        while t_root is not None and i<word_len:
+            char_index = ord(word[i])-97
+            if t_root.cells[char_index] is None: return False
+            t_root = t_root.cells[char_index].next
+            i+=1
+        return i==word_len
+    
+class BoardTrie(Trie):
+    
+    def __init__(self, board, row, col, max_depth):
+        Trie.__init__(self, max_depth)
         self.board = board
-        self.row = len(board)
-        self.col = len(board[0])
-        self.visited = [[False for j in range(
-            self.col)] for i in range(self.row)]
-
-    def _is_valid_pos(self, i, j):
-        if i < 0 or i >= self.row or j < 0 or j >= self.col:
-            return False
-        if self.visited[i][j]:
-            return False
+        self.row = row
+        self.col = col
+        self.adj = [[0,-1,0,1],[-1,0,1,0]]
+    
+    def is_valid(self, i, j):
+        if i<0 or i>=self.row or j<0 or j>=self.col: return False
+        if self.board[i][j]=='\0': return False # Visited
         return True
 
-    def _search_word(self, trie_node, i, j, op_list: list):
-        """
-        @param i,j : Index of letter in the board.
-        """
-        if not trie_node or not self._is_valid_pos(i, j):
-            return
-        chr_index = to_index(self.board[i][j])
-        trie_cell = trie_node.get_cell(chr_index)
-        if not trie_cell:
-            return
-        op_list.append(self.board[i][j])
-        self.visited[i][j] = True
-        if trie_cell.is_last_cell:
-            self.words.append(''.join(op_list))
-        for k in range(8):
-            ti, tj = i + adj_offset[0][k], j + adj_offset[1][k]
-            self._search_word(trie_cell.child, ti, tj, op_list)
-        op_list.pop()
-        self.visited[i][j] = False
-
-    def search_words(self):
-        op_list = list()
+    def insert_in_trie(self, i, j, trie_node: TrieNode, cur_depth):
+        if cur_depth>=self.max_depth: return trie_node
+        if not self.is_valid(i, j): return trie_node
+        temp = self.board[i][j]
+        self.board[i][j] = '\0' # mark visited
+        if trie_node is None:
+            trie_node = TrieNode()
+        trie_cell = trie_node.cells[ord(temp)-97]
+        if trie_cell == None:
+            trie_cell = TrieCell(temp)
+            trie_node.cells[ord(temp)-97] = trie_cell
+            trie_node.active_cells_count+=1
+        for k in range(4):
+            ti, tj = i + self.adj[0][k], j + self.adj[1][k]
+            trie_cell.next = self.insert_in_trie(ti, tj, trie_cell.next, cur_depth+1)
+        self.board[i][j] = temp
+        return trie_node
+    
+    def make_trie(self):
         for i in range(self.row):
             for j in range(self.col):
-                self._search_word(self.word_trie.trie_node, i, j, op_list)
-        return self.words
+                self.root = self.insert_in_trie(i, j, self.root, 0)
+        # self.print_trie()
 
+        
+class WordsTrie(Trie):
+    
+    def __init__(self, words, words_len, max_depth):
+        Trie.__init__(self, max_depth)
+        self.words = words
+        self.words_len = words_len
 
+    def insert_in_trie(self, word, word_len, i, trie_node: TrieNode, cur_depth):
+        if cur_depth>=self.max_depth: return trie_node
+        if i==word_len: return trie_node
+        if trie_node is None:
+            trie_node = TrieNode()
+        char = word[i]
+        trie_cell = trie_node.cells[ord(char)-97]
+        if trie_cell == None:
+            trie_cell = TrieCell(char)
+            trie_node.cells[ord(char)-97] = trie_cell
+            trie_node.active_cells_count+=1
+        if i==(word_len-1): trie_cell.is_end_cell = True
+        trie_cell.next = self.insert_in_trie(word, word_len, i+1, trie_cell.next, cur_depth+1)
+        return trie_node
+    
+    def is_valid_tc(self,board_freq, word, word_len):
+        word_freq = dict()
+        for letr in word:
+            freq = word_freq[letr] = word_freq.get(letr, 0) + 1
+            if freq>(board_freq.get(letr,0)): return False
+        return True
+    
+    def make_trie(self, board, row, col):
+        board_freq = dict()
+        for i in range(row):
+            for j in range(col):
+                letr = board[i][j]
+                board_freq[letr] = board_freq.get(letr, 0) + 1
+        for word in self.words:
+            word_len = len(word)
+            if self.is_valid_tc(board_freq, word, word_len):
+                self.root = self.insert_in_trie(word, len(word), 0, self.root, 0)
+        # self.print_trie()
+        
 class Solution:
-    def findWords(self, board, words):
-        trie = Trie()
+    
+    def get_board_freq(self, board, row, col):
+        board_freq = dict()
+        for i in range(row):
+            for j in range(col):
+                letr = board[i][j]
+                board_freq[letr] = board_freq.get(letr, 0) + 1
+        return board_freq
+    
+    def is_valid_tc(self,board_freq, word, word_len):
+        word_freq = dict()
+        for letr in word:
+            freq = word_freq[letr] = word_freq.get(letr, 0) + 1
+            if freq>(board_freq.get(letr,0)): return False
+        return True
+    
+    # This moves all the possible words from board into trie and then searchs
+    #  for word in words list
+    # Will time out
+    def findWords1(self, board: list[list[str]], words: list[str]) -> list[str]:
+        op = list()
+        row = len(board)
+        col = 0 if row==0 else len(board[0])
+        word_len = len(words)
+        max_depth = 0
+        board_freq = self.get_board_freq(board, row, col)
         for word in words:
-            trie.insert_word_in_trie(word)
-        print('===Trie===')
-        trie.print_trie()
-        search_word = SearchWord(trie, board)
-        op_list = search_word.search_words()
-        # print(op_list)
-        return op_list
+            word_len = len(word)
+            if self.is_valid_tc(board_freq, word, word_len):
+                max_depth = max(max_depth, word_len)
+                if max_depth==10: break
+        board_trie = BoardTrie(board, row, col, max_depth)
+        board_trie.make_trie()
+        for word in words:
+            if board_trie.search_in_trie(word):
+                op.append(word)
+        return op
+    
+    def is_valid(self, i, j, trie_node:TrieNode):
+        if i<0 or i>=self.row or j<0 or j>=self.col: return False
+        if self.board[i][j]=='\0': return False # Visited
+        char = self.board[i][j]
+        if trie_node.cells[ord(char)-97] is None: return False
+        return True
 
-
-def main():
-    boards = [['o', 'a', 'a', 'n'],
-              ['e', 't', 'a', 'e'],
-              ['e', 'e', 'k', 'r'],
-              ['s', 'k', 'l', 'v']]
-    words = ["oath", "pea", "eat", "rain", "oa", "p",
-             "peas", "eaten", 'h', 'seek']
-    # Here seek would get printed 3 times since it can be formed 3 ways.
-    # To avoid this Set can be used to hold the words instead of list.
-
-    # boards = [['A', 'B', 'C'], ['D', 'E', 'F'], ['G', 'H', 'I']]
-    # words = ["GEEKS", "ABCFIHGDE"]
-
-    print('Boards = ')
-    for board in boards:
-        print(board)
-    print('Words>>', words)
-
-    sol = Solution()
-    op_list = sol.findWords(boards, words)
-    print('Output>>', op_list)
-
-
-if __name__ == '__main__':
-    main()
+    def search_in_board_dfs(self, i, j, trie_node:TrieNode, op, cur_op):
+        if trie_node is None: return None
+        if not self.is_valid(i, j, trie_node): return trie_node
+        temp = self.board[i][j]
+        cur_op.append(temp)
+        trie_cell = trie_node.cells[ord(temp)-97]
+        self.board[i][j] = '\0'
+        for k in range(4):
+            ti, tj = i+self.adj[0][k], j+self.adj[1][k]
+            trie_cell.next = self.search_in_board_dfs(ti, tj, trie_cell.next, op, cur_op)
+            if trie_cell.is_end_cell:   
+                op.append(''.join(cur_op))
+                trie_cell.is_end_cell = False # To avoid including it again
+            if trie_cell.next is None:    
+                del(trie_cell)
+                trie_node.cells[ord(temp)-97] = None
+                trie_node.active_cells_count-=1
+                if trie_node.active_cells_count==0:
+                    del(trie_node)
+                    trie_node = None
+                break
+        cur_op.pop()
+        self.board[i][j] = temp
+        return trie_node
+    
+    def findWords(self, board: list[list[str]], words: list[str]) -> list[str]:
+        op = list()
+        self.board = board
+        self.row = len(board)
+        self.col = 0 if self.row==0 else len(board[0])
+        self.adj = [[0,-1,0,1],[-1,0,1,0]]
+        word_len = len(words)
+        max_depth = 10
+        words_trie = WordsTrie(words, word_len, max_depth)
+        words_trie.make_trie(board, self.row, self.col)
+        for i in range(self.row):
+            for j in range(self.col):
+                words_trie.root = self.search_in_board_dfs(i, j, words_trie.root, op, list())
+                # words_trie.print_trie()
+                # print('----------------------------------')
+        return op

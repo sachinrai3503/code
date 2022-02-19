@@ -17,7 +17,7 @@ Input  : arr = [2, 1, 5, 5, 6], K = 3
 Output : No
 */
 
-// This recursive approach won't work as takes lot of time.
+// The recursive approach won't work as takes lot of time.
 // Below DP solution also won't work for all cases as shown.
 
 #include <stdio.h>

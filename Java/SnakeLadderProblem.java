@@ -1,4 +1,5 @@
 // https://www.geeksforgeeks.org/snake-ladder-problem-2/
+// https://leetcode.com/problems/snakes-and-ladders/
 /*
 Given a snake and ladder board, find the minimum number of dice throws 
 required to reach the destination or last cell from source or 1st cell.
@@ -33,6 +34,9 @@ c) Finally through 2 to reach 30.
 
 There can be other solutions as well like (2, 2, 6), (2, 4, 4), (2, 3, 5).. etc.
 */
+
+// NOTE - Check SnakeLadderProblem.py for better(correct) logic.
+// Below implementation might not work in all the cases.
 
 import java.util.ArrayList;
 

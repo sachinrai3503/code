@@ -11,6 +11,8 @@ Input : {1, 5, 4, 3, 2}
 Output : 2
 */
 
+// Refer list_min_swap_to_sort.py for simple implementaion of below logic
+
 #include <stdio.h>
 #include <malloc.h>
 #include <limits.h>

@@ -1,4 +1,5 @@
 # https://www.geeksforgeeks.org/maximized-partitions-of-a-string-such-that-each-character-of-the-string-appears-in-one-substring/
+# https://www.geeksforgeeks.org/maximize-partitions-such-that-no-two-substrings-have-any-common-character
 # https://leetcode.com/problems/partition-labels/
 
 """
@@ -9,12 +10,10 @@ Given a string S, split the given string into as many substrings as possible
 Examples:
 
 Input: S = “ababcbacadefegdehijhklij” 
-Output: 
-ababcbaca defegde hijhklij 
+Output: ababcbaca defegde hijhklij 
 
 Input: S = “acbbcc” 
-Output: 
-a cbbcc 
+Output: a cbbcc 
 """
 
 

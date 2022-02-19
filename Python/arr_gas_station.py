@@ -76,24 +76,24 @@ class Solution:
 
     # This sliding window one works.
     def canCompleteCircuit(self, gas: list[int], cost: list[int]) -> int:
-        s = 0
-        n = len(gas)
-        total_gas = 0
-        total_cost = 0
-        for i in range(n):
-            total_gas+=gas[i]
-            total_cost+=cost[i]
-            while total_cost>total_gas and s<=i:
-                total_gas-=gas[s]
-                total_cost-=cost[s]
-                s+=1
-            i+=1
-        i=0
-        while s<n and (i!=s):
-            if total_cost+cost[i]<=total_gas+gas[i]:
-                total_cost+=cost[i] 
-                total_gas+=gas[i]
-                i+=1
-            else: s+=1
-        if s==i: return s
-        return -1
+        length = len(gas)
+        s, i = 0, 0
+        t_g, t_c = gas[s], cost[s]
+        while True:
+            if t_g>=t_c:
+                i = (i+1)%length
+                if i==s: return s
+                t_g+=gas[i]
+                t_c+=cost[i]
+            else:
+                t_g-=gas[s]
+                t_c-=cost[s]
+                if s==(length-1): return -1
+                elif s==i:
+                    s+=1
+                    i+=1
+                    t_g, t_c = gas[s], cost[s]
+                else:
+                    s+=1
+        print('Should not run')
+        return None

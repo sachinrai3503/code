@@ -127,6 +127,7 @@ int mergeStones1(int* stones, int stonesSize, int k){
     return ans;
 }
 
+// https://leetcode.com/problems/minimum-cost-to-merge-stones/discuss/1432667/Explained-to-make-you-Visualise-the-solution-.-Detailed-Explanation
 int mergeStones(int* stones, int stonesSize, int k){
     if(stonesSize==1) return 0;
     if(k>stonesSize) return -1;

@@ -53,6 +53,17 @@ tree.
     But 100 is unbalanced and doing a right rotation on 100 won't balance it.
 */
 
+// Note - Here left/right rotation as in AVL won't work. Eg. test case below.
+/*
+                        14
+                      /
+                    7
+                  /   \
+                2       11
+                 \     /  \
+                  3   9    12
+*/
+
 #include <stdio.h>
 //  Definition for a binary tree node.
  struct TreeNode {

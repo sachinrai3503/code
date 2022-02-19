@@ -84,8 +84,8 @@ int delete_ds(data_strct *ds, int data){
     int index = search_ds(ds,data);
     if(index!=-1){
         ds->data[index] = ds->data[--ds->cur_size];
-        ds->map[data] = -1;
         ds->map[ds->data[index]] = index;
+        ds->map[data] = -1;
         return data;
     }else{
         printf("Not deleted\n");

@@ -88,3 +88,36 @@ class Solution:
                 profit_DP[s] = (jobsList[i].startTime, t_profit)
         # print(profit_DP)
         return profit_DP[s][1]
+
+# Another code around same logic but without much sorting
+
+class Solution2:
+    
+    def binary_search(self, index):
+        best_end_time_index = self.length
+        start_index = self.startTime[self.order[index]]
+        s, e = 0, index-1
+        while s<=e:
+            mid = s + (e-s)//2
+            if self.endTime[self.order[mid]]<=start_index:
+                best_end_time_index = mid
+                s = mid+1
+            else: e = mid-1
+        return best_end_time_index
+            
+    
+    def jobScheduling(self, startTime: list[int], endTime: list[int], profit: list[int]) -> int:
+        self.startTime = startTime
+        self.endTime = endTime
+        self.profit = profit
+        self.length = len(startTime)
+        self.order = [i for i in range(self.length)]
+        self.order.sort(key=lambda x : endTime[x])
+        # Print the order of task based on endTime
+        # print(self.order) 
+        max_range_profit = [0 for i in range(self.length)]
+        for i in range(self.length):
+            index = self.binary_search(i)
+            max_prev_profit = 0 if index==self.length else max_range_profit[index]
+            max_range_profit[i] = max(max_prev_profit+profit[self.order[i]], 0 if i==0 else max_range_profit[i-1])
+        return max_range_profit[self.length-1]

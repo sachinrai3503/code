@@ -1,4 +1,4 @@
-// https://www.geeksforgeeks.org/count-possible-decodings-of-a-given-digit-sequence-set-2/?ref=rp
+// https://www.geeksforgeeks.org/count-possible-decodings-of-a-given-digit-sequence-set-2
 // https://leetcode.com/problems/decode-ways-ii/
 /*
 A message containing letters from A-Z can be encoded into numbers using the

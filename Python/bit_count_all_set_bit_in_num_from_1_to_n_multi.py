@@ -36,8 +36,21 @@ class Solution:
             i*=2
         return count
     
-    #https://www.geeksforgeeks.org/count-total-set-bits-in-all-numbers-from-1-to-n-set-3/?ref=rp
-    def countTotalSetBitDP(self, num):
+    #https://www.geeksforgeeks.org/count-total-set-bits-in-all-numbers-from-1-to-n-set-3
+    def countBitsDP2(self, n: int) -> list[int]:
+        dp = [0 for i in range(n+1)]
+        if n==0: return dp
+        last_2_power = 0
+        for i in range(1, n+1):
+            if i&(i-1)==0:
+                dp[i] = 1
+                last_2_power = i
+            else:
+                dp[i] = 1 + dp[i-last_2_power]
+        # print(dp)
+        return dp
+    
+    def countTotalSetBitDP1(self, num):
         if num<=0: return 0, [0]
         if num==1: return 1, [0, 1]
         total_count = 1
@@ -56,6 +69,6 @@ class Solution:
             total_set_bit+=counts[-1]
         print('method 1 =',total_set_bit)
         print('method 2 =',self.countTotalSetBit(num))
-        total_count, count_list_dp = self.countTotalSetBitDP(num)
+        total_count, count_list_dp = self.countTotalSetBitDP1(num)
         print('method 3 =',total_count)
         return count_list_dp

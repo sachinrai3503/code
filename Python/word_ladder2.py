@@ -65,7 +65,8 @@ class Solution:
             word[i] = original_char
         return op_list
     
-    def findLadders(self, beginWord: str, endWord: str, wordList: list[str]) -> list[list[str]]:
+    # See next implementation for better solution
+    def findLadders_1(self, beginWord: str, endWord: str, wordList: list[str]) -> list[list[str]]:
         op_map = dict()
         op_list = list()
         que = deque()
@@ -100,3 +101,54 @@ class Solution:
             visited = visited.union(level_visited)
             # print(que)
         return op_list
+
+
+    # Thsi solution is better and fast.
+    def findLadders(self, beginWord: str, endWord: str, wordList: list[str]) -> list[list[str]]:
+        wordSet = set(wordList)
+        wordSet.add(beginWord)
+        wordDict = dict()
+        for word in wordSet:
+            wordLen = len(word)
+            for i in range(wordLen):
+                t_word = ''.join([word[:i], '*', word[i+1:]])
+                wordList = wordDict.get(t_word, list())
+                wordList.append(word)
+                wordDict[t_word] = wordList
+        # print(wordSet)
+        # print(wordDict)
+        op = list()
+        que = deque()
+        que.append([beginWord])
+        wordSet.remove(beginWord)
+        que.append(None)
+        while que[0]!=None:
+            while que[0]!=None:
+                t_list = que.popleft()
+                last_word = t_list[-1]
+                if last_word==endWord:
+                    op.append(t_list)
+                    while que[0]!=None:
+                        t_list = que.popleft()
+                        if t_list[-1] == endWord:
+                            op.append(t_list)
+                else:
+                    last_word_len = len(last_word)
+                    for i in range(last_word_len):
+                        t_word = ''.join([last_word[:i], '*', last_word[i+1:]])
+                        next_word_list = wordDict.get(t_word)
+                        for next_word in next_word_list:
+                            # Note - Here checking visited in a wordSet from which visited nodes only till above level are deleted
+                            if next_word in wordSet:
+                                # Note - Here not marking as visited
+                                next_list = list(t_list)
+                                next_list.append(next_word)
+                                que.append(next_list)
+            que.popleft()
+            # print(que)
+            # Here removing the words visited in current level.
+            for i in range(len(que)):
+                if que[i][-1] in wordSet: wordSet.remove(que[i][-1])
+                # print(wordSet)
+            que.append(None)
+        return op

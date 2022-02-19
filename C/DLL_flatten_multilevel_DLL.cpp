@@ -1,4 +1,5 @@
-// https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/
+// https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list
+// https://www.geeksforgeeks.org/flatten-a-multi-level-linked-list-set-2-depth-wise
 /*
 You are given a doubly linked list which in addition to the next and previous
  pointers, it could have a child pointer, which may or may not point to a 

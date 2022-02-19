@@ -1,4 +1,5 @@
 # https://leetcode.com/problems/word-ladder/
+# https://www.geeksforgeeks.org/word-ladder-length-of-shortest-chain-to-reach-a-target-word/
 """
 A transformation sequence from word beginWord to word endWord using a dictionary
  wordList is a sequence of words such that:
@@ -55,7 +56,8 @@ class Solution:
             word[i] = original_char
         return op_list
     
-    def ladderLength(self, beginWord: str, endWord: str, wordList: list[str]) -> int:
+    # See ladderLength(...) below for better solution.
+    def ladderLength_1(self, beginWord: str, endWord: str, wordList: list[str]) -> int:
         que = deque()
         word_set = set(wordList)
         if endWord not in word_set: return 0
@@ -77,4 +79,41 @@ class Solution:
             depth+=1
             que.append(null_node)
             # print(que)
+        return 0
+
+    # This is much better solution - Refer - 
+    # https://www.geeksforgeeks.org/word-ladder-length-of-shortest-chain-to-reach-a-target-word
+    def ladderLength(self, beginWord: str, endWord: str, wordList: list[str]) -> int:
+        wordSet = set(wordList)
+        wordSet.add(beginWord)
+        wordDict = dict()
+        for word in wordSet:
+            length = len(word)
+            for i in range(length):
+                t_word = ''.join([word[:i],'*',word[i+1:]])
+                wordList = wordDict.get(t_word, list())
+                wordList.append(word)
+                wordDict[t_word] = wordList
+        # print(wordDict)
+        # print(wordSet)
+        ladderLen = 0
+        que = deque()
+        que.append(beginWord)
+        wordSet.remove(beginWord)
+        que.append(None)
+        while que[0]!=None:
+            while que[0]!=None:
+                t_word = que.popleft()
+                if t_word==endWord: return ladderLen+1
+                t_len = len(t_word)
+                for i in range(t_len):
+                    next_word_list = wordDict.get(''.join([t_word[:i], '*', t_word[i+1:]]))
+                    for next_word in next_word_list:
+                        # Add yet to be visited word
+                        if next_word in wordSet:
+                            que.append(next_word)
+                            wordSet.remove(next_word)
+            que.popleft()
+            ladderLen+=1
+            que.append(None)
         return 0

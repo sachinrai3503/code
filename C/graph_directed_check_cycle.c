@@ -1,5 +1,5 @@
 // https://www.geeksforgeeks.org/detect-cycle-in-a-graph/
-// https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/?ref=rp
+// https://www.geeksforgeeks.org/detect-cycle-in-a-directed-graph-using-bfs/
 
 #include <stdio.h>
 #include <malloc.h>

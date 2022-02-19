@@ -1,4 +1,5 @@
-// https://www.geeksforgeeks.org/flattening-a-linked-list/
+// https://www.geeksforgeeks.org/flattening-a-linked-list
+// https://www.geeksforgeeks.org/flattening-a-linked-list-set-2
 /*
 Given a LL where every node represents a LL and contains 2 pointers of its type:
 (i) Pointer to next node in the main list (we call it ‘right’ pointer)

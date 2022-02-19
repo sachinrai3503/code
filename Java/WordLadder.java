@@ -1,4 +1,5 @@
 // https://www.geeksforgeeks.org/word-ladder-length-of-shortest-chain-to-reach-a-target-word/
+// https://leetcode.com/problems/word-ladder/
 /*
 Given a dictionary, and two words ‘start’ and ‘target’ (both of same length).
 Find length of the smallest chain from ‘start’ to ‘target’ if it exists, 
@@ -20,6 +21,8 @@ Input: Dictionary = {ABCD, EBAD, EBCD, XYZA}
 Output: 4
 ABCV - ABCD - EBCD - EBAD
 */
+
+// Better solution in word_ladder1.py
 
 import java.util.TreeSet;
 import java.util.ArrayList;
