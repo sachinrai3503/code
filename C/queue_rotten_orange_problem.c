@@ -1,4 +1,5 @@
 // https://www.geeksforgeeks.org/minimum-time-required-so-that-all-oranges-become-rotten/
+// https://leetcode.com/problems/rotting-oranges/
 /*
 Given a matrix of dimension m*n where each cell in the matrix 
 can have values 0, 1 or 2 which has the following meaning:
@@ -26,164 +27,115 @@ All oranges can become rotten in 2-time frames.
 
 #include <stdio.h>
 #include <malloc.h>
-#include <limits.h>
+#define true 1
+#define false 0
 
-void print_arr(int ip[], int row, int col){
-    int i = 0;
-    for(;i<col;i++){
-        printf("%d ",ip[i]);
-    }
-    printf("\n");
-}
-
-void print_2D(int (*ip)[50], int row, int col){
-    int i = 0;
-    for(;i<row;i++){
-        print_arr(ip[i],row,col);
-    }
-}
+typedef int bool;
 
 typedef struct{
-    int row, col;
-}que_data;
+    int i, j;
+}queueNode;
 
-que_data* init_que_data(int row, int col){
-    que_data *data = (que_data*)malloc(sizeof(que_data));
-    if(data){
-        data->row = row;
-        data->col = col;
-    }
-    return data;
-}
-
-typedef struct {
-    que_data **data;
+typedef struct{
+    queueNode **data;
     int front, rear;
-    int max_size;
+    int maxsize;
 }queue;
 
-queue* init_queue(int max_size){
+queueNode* init_queue_node(int i, int j){
+    queueNode *node = (queueNode*)malloc(sizeof(queueNode));
+    if(node){
+        node->i = i;
+        node->j = j;
+    }
+    return node;
+}
+
+queue* init_queue(int maxsize){
     queue *que = (queue*)malloc(sizeof(queue));
     if(que){
-        que->data = (que_data**)calloc(max_size,sizeof(que_data*));
+        que->data = (queueNode**)calloc(maxsize, sizeof(queueNode*));
         que->front = que->rear = -1;
-        que->max_size = max_size;
+        que->maxsize = maxsize;
     }
     return que;
 }
 
-int is_empty(queue *que){
-    if(que->front==-1) return 1;
-    return 0;
+bool is_full(queue *que){
+    if((que->front==0 && que->rear==(que->maxsize-1)) || (que->front==que->rear+1)) return true;
+    return false;
 }
 
-int is_full(queue *que){
-    if((que->front==0 && que->rear==que->max_size-1) || (que->rear==que->front-1)) return 1;
-    return 0;
+bool is_empty(queue *que){
+    if(que->front==-1) return true;
+    return false;
 }
 
-void insert_que(queue *que, que_data *data){
+void insert_in_queue(queue *que, queueNode *node){
     if(is_full(que)){
         printf("Full\n");
-    }else if(data){
-        if(que->rear==que->max_size-1) que->rear = 0;
+        return;
+    }else{
+        if(que->rear==que->maxsize-1) que->rear=0;
         else que->rear++;
         if(que->front==-1) que->front=0;
-        que->data[que->rear] = data;
+        que->data[que->rear] = node;
     }
 }
 
-que_data* delete_front(queue *que){
+queueNode* delete_from_queue(queue *que){
     if(is_empty(que)){
         printf("Empty\n");
         return NULL;
     }else{
-        que_data *temp = que->data[que->front];
-        if(que->front==que->rear) que->front = que->rear = -1;
-        else if(que->front==que->max_size-1) que->front = 0;
+        queueNode *temp = que->data[que->front];
+        if(que->front==que->rear) que->rear=que->front=-1;
+        else if(que->front==que->maxsize-1) que->front=0;
         else que->front++;
         return temp;
     }
 }
 
-int is_valid_position(int row, int col, int i, int j){
-    if(i<0 || j<0 || i>=row || j>=col) return 0;
-    return 1;
-}
-
-int has_all_rotten(int (*ip)[50], int row, int col){
+int orangesRotting(int** grid, int gridSize, int* gridColSize){
+    int times = 0;
+    int col = *gridColSize;
+    int row = gridSize;
+    int adj[][4] = {{0,-1,0,1},{-1,0,1,0}};
+    queue *que = init_queue(gridSize*(*gridColSize)+1);
     int i = 0;
-    for(;i<row;i++){
+    for(;i<gridSize;i++){
         int j = 0;
         for(;j<col;j++){
-            if(ip[i][j]==1) return 0;
+            if(grid[i][j]==2)
+                insert_in_queue(que, init_queue_node(i,j));
         }
     }
-    return 1;
-}
-
-void insert_all_rotten_oranges(int (*ip)[50], int row, int col, queue *que){
-    int i = 0;
-    for(;i<row;i++){
-        int j = 0;
-        for(;j<col;j++){
-            if(ip[i][j]==2){
-                insert_que(que,init_que_data(i,j));
+    insert_in_queue(que, NULL);
+    while(que->data[que->front]!=NULL){
+        while(que->data[que->front]!=NULL){
+            queueNode *temp = delete_from_queue(que);
+            int k = 0;
+            for(;k<4;k++){
+                int t_i = temp->i + adj[0][k], t_j = temp->j + adj[1][k];
+                if(t_i<0 || t_i>=row || t_j<0 || t_j>=col) continue;
+                if(grid[t_i][t_j]==1){
+                    insert_in_queue(que, init_queue_node(t_i,t_j));
+                    grid[t_i][t_j] = 2;
+                }
             }
         }
+        delete_from_queue(que);
+        times++;
+        insert_in_queue(que, NULL);
     }
-}
-
-void mark_rotten(int (*ip)[50], int row, int col, int i, int j){
-    if(is_valid_position(row,col,i,j)) ip[i][j] = 2;
-}
-
-int is_fresh(int (*ip)[50], int row, int col, int i, int j){
-    if(is_valid_position(row,col,i,j) && ip[i][j]==1) return 1;
-    return 0;
-}
-
-void rot_adjacent(int (*ip)[50], queue *que, que_data *temp, int row, int col){
-    int step[2][4] = {  {1,-1,0,0},
-                        {0,0,1,-1}};
-    int i = 0;
-    for(;i<4;i++){
-        if(is_fresh(ip,row,col,temp->row+step[0][i],temp->col+step[1][i])){
-            mark_rotten(ip,row,col,temp->row+step[0][i],temp->col+step[1][i]);
-            insert_que(que,init_que_data(temp->row+step[0][i],temp->col+step[1][i]));
+    i = 0;
+    for(;i<gridSize;i++){
+        int j = 0;
+        for(;j<col;j++){
+            if(grid[i][j]==1)
+                return -1;
         }
     }
-}
-
-int get_min_time_to_rot(int (*ip)[50], int row, int col){
-    int min_time = 0;
-    queue *que = init_queue(row*col+10);
-    que_data *null_node = init_que_data(INT_MIN,INT_MIN);
-    insert_all_rotten_oranges(ip,row,col,que);
-    insert_que(que,null_node);
-    while(!is_empty(que) && que->data[que->front]!=null_node){
-        min_time++;
-        while(!is_empty(que) && que->data[que->front]!=null_node){
-            que_data *temp = delete_front(que);
-            rot_adjacent(ip,que,temp,row,col);
-        }
-        delete_front(que);
-        insert_que(que,null_node);
-    }
-    if(has_all_rotten(ip,row,col)) return min_time-1;
-    return -1;
-}
-
-int main(){
-    int ip[50][50] = {  {2, 1, 1, 1, 2},
-                        {0, 0, 0, 0, 0},
-                        {1, 1, 1, 1, 1}};
-    int row = 3;
-    int col = 5;
-
-    print_2D(ip,row,col);
-
-    printf("Min time to rot = %d\n",get_min_time_to_rot(ip,row,col));
-
-    return 0;
+    if(times==0) return 0;
+    return times-1;
 }

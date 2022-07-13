@@ -10,13 +10,12 @@ We can make string palindrome as "abedeba"
 by adding ba at the end of the string.
 """
 
-from string_min_prepend_to_make_str_palindrom import get_lps
-from string_min_prepend_to_make_str_palindrom import get_reversed
+from string_min_prepend_to_make_str_palindrom import Solution
 
 def get_min_append_to_make_palindrom(text):
-    new_text = get_reversed(text) + '$' + text
+    new_text = text[::-1] + '$' + text
     print('new text>',new_text)
-    longest_palindrom_substr_from_index0 = get_lps(new_text)
+    longest_palindrom_substr_from_index0 = Solution.get_lps(None, new_text, len(new_text))
     return len(text) - longest_palindrom_substr_from_index0
 
 def main():

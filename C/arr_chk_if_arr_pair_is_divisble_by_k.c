@@ -1,4 +1,5 @@
 // https://leetcode.com/problems/check-if-array-pairs-are-divisible-by-k/
+// https://www.geeksforgeeks.org/check-if-an-array-can-be-divided-into-pairs-whose-sum-is-divisible-by-k
 /*
 Given an array of integers arr of even length n and an integer k.
 
