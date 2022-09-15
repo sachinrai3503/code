@@ -1,4 +1,5 @@
 # https://www.geeksforgeeks.org/maximum-product-subarray/
+# https://leetcode.com/problems/maximum-product-subarray/
 
 INT_MIN = -999999999
 

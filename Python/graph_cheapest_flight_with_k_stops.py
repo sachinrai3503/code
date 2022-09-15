@@ -111,3 +111,21 @@ class Solution:
             k-=1
             que.append(None)
         return prices[dst] if prices[dst]!=maxsize else -1
+
+    # Same as above but using BellmanFord technique
+    def findCheapestPrice_BellmanFord(self, n: int, flights: list[list[int]], src: int, dst: int, k: int) -> int:
+        prices = [maxsize for i in range(n)]
+        prices[src] = 0
+        t_k = -1
+        i = 0
+        while t_k<k and i<(n-1):
+            t_prices = list(prices)
+            for flight in flights:
+                u, v, w = flight
+                if prices[u] is not None and t_prices[v]>prices[u] + w:
+                    t_prices[v] = prices[u]+w
+            # print(t_prices)
+            prices = t_prices
+            t_k+=1
+            i+=1
+        return prices[dst] if prices[dst]!=maxsize else -1

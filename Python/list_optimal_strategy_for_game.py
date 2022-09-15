@@ -1,65 +1,58 @@
-# https://www.geeksforgeeks.org/optimal-strategy-for-a-game-dp-31/
-# https://www.geeksforgeeks.org/optimal-strategy-for-a-game-set-2/?ref=lbp
-# https://www.geeksforgeeks.org/optimal-strategy-for-a-game-set-3/?ref=rp
+# https://www.geeksforgeeks.org/optimal-strategy-for-a-game-dp-31
+# https://www.geeksforgeeks.org/optimal-strategy-for-a-game-set-2
+# https://www.geeksforgeeks.org/optimal-strategy-for-a-game-set-3
+# https://www.geeksforgeeks.org/coin-game-of-two-corners-greedy-approach
+# https://leetcode.com/problems/predict-the-winner
 """
-Consider a row of n coins of values v1 . . . vn, where n is even. 
-We play a game against an opponent by alternating turns. 
-In each turn, a player selects either the first or last coin from the row, 
-removes it from the row permanently, and receives the value of the coin.
+You are given an integer array nums. Two players are playing a game with this array: 
+ player 1 and player 2.
 
-Determine the maximum possible amount of money we can definitely win 
-if we move first.
+Player 1 and player 2 take turns, with player 1 starting first. Both players start the
+ game with a score of 0. At each turn, the player takes one of the numbers from either
+ end of the array (i.e., nums[0] or nums[nums.length - 1]) which reduces the size of the
+ array by 1. The player adds the chosen number to their score. The game ends when there
+ are no more elements in the array.
 
-Note: The opponent is as clever as the user.
+Return true if Player 1 can win the game. If the scores of both players are equal,
+ then player 1 is still the winner, and you should also return true. You may assume that
+ both players are playing optimally.
 
-Also, print the sequence of moves in the optimal game. 
-As many sequences of moves may lead to the optimal answer, print 
-any valid sequence.
+Example 1:
+Input: nums = [1,5,2]
+Output: false
+Explanation: Initially, player 1 can choose between 1 and 2. 
+If he chooses 2 (or 1), then player 2 can choose from 1 (or 2) and 5. If player 2 chooses 5,
+ then player 1 will be left with 1 (or 2). 
+So, final score of player 1 is 1 + 2 = 3, and player 2 is 5. 
+Hence, player 1 will never be the winner and you need to return false.
 
-Examples:
-Input: 10 80 90 30
-Output: 110 RRRL
+Example 2:
+Input: nums = [1,5,233,7]
+Output: true
+Explanation: Player 1 first chooses 1. Then player 2 has to choose between 5 and 7.
+ No matter which number player 2 choose, player 1 can choose 233.
+Finally, player 1 has more score (234) than player 2 (12), so you need to return 
+ True representing player1 can win.
+ 
 
-Input: 10 100 10
-Output: 20 RRL
+Constraints:
+1 <= nums.length <= 20
+0 <= nums[i] <= 107
 """
 
-def get_max(a, b):
-    return a if a>b else b
-
-def find_max_amount(ip_list):
-    length = len(ip_list)
-    if length<=0: return -1, []
-    best_seq = list()
-    op = [[0]*length, [0]*length]
-    for i in range(length-1, -1, -1):
-        cur_row = i%2
-        prev_row = 1 if cur_row==0 else 0
-        sum = 0
-        for j in range(i,length):
-            sum+=ip_list[j]
-            if i==j:
-                op[cur_row][j] = ip_list[i]
-                if i==0: best_seq.append('L')
-            else:
-                with_i, with_j = 0, 0
-                with_i = ip_list[i] + (sum-ip_list[i]-op[prev_row][j])
-                with_j = ip_list[j] + (sum-ip_list[j]-op[cur_row][j-1])
-                if with_i>with_j:
-                    op[cur_row][j] = with_i
-                    if i==0: best_seq.append('L')
+class Solution:
+    def PredictTheWinner(self, nums: list[int]) -> bool:
+        nums_len = len(nums)
+        dp = [0 for i in range(nums_len)]
+        nums_sum = 0
+        for i in range(nums_len-1, -1, -1):
+            t_sum = 0
+            for j in range(i, nums_len):
+                t_sum+=nums[j]
+                if i==j:
+                    dp[j] = nums[j]
                 else:
-                    op[cur_row][j] = with_j
-                    if i==0: best_seq.append('R')
-    best_seq = list(reversed(best_seq))
-    return op[0][length-1], best_seq
-
-def main():
-    ip_list = [18, 20, 15, 30, 10, 14]
-    print('ip>>',ip_list)
-    max_amt, best_seq = find_max_amount(ip_list)
-    print('Max amount =',max_amt)
-    print('Best seq.',best_seq)
-
-if __name__ == '__main__':
-    main()
+                    dp[j] = t_sum - min(dp[j], dp[j-1])
+            nums_sum = t_sum
+        # print(f'{dp[-1]=}')
+        return dp[-1]>=(nums_sum-dp[-1])

@@ -1,5 +1,6 @@
 # https://www.geeksforgeeks.org/the-celebrity-problem/
 # https://www.lintcode.com/problem/645/
+# https://leetcode.com/problems/find-the-celebrity/
 """
 Suppose you are at a party with n people (labeled from 0 to n - 1) and among them,
  there may exist one celebrity. The definition of a celebrity is that all the other

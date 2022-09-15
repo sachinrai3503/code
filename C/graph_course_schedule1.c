@@ -1,4 +1,5 @@
 // https://leetcode.com/problems/course-schedule/
+// https://www.geeksforgeeks.org/find-whether-it-is-possible-to-finish-all-tasks-or-not-from-given-dependencies
 /*
 There are a total of numCourses courses you have to take, labeled from 0 to
  numCourses - 1. You are given an array prerequisites where

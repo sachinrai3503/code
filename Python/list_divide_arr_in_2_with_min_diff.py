@@ -12,6 +12,23 @@ Subset1 = {1, 5, 6}, sum of Subset1 = 12
 Subset2 = {11}, sum of Subset2 = 11  
 """
 
+def minDifference(self, arr, n):
+    arr_sum = sum(arr)
+    if n==1: return arr_sum
+    mid = arr_sum//2
+    dp = [False for i in range(mid+1)]
+    for num in arr[::-1]:
+        j = mid
+        while j>num:
+            if not dp[j]: dp[j] = dp[j-num]
+            j-=1
+        if j==num: dp[j] = True
+       # print(dp)
+    for i in range(mid, -1, -1):
+        if dp[i]:
+            return abs(i - (arr_sum - i))
+    return None
+
 def get_sum(ip_list):
     sum = 0
     for num in ip_list:
@@ -67,4 +84,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

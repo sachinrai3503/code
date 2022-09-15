@@ -21,32 +21,25 @@ Constraints:
 """
 
 class Solution:
-
-    def get_prev_smaller_index(self, heights, length):
-        smaller_indexs = [-1 for i in range(length)]
-        stck = list()
-        for i in range(length-1, -1, -1):
-            while len(stck)>0 and heights[stck[-1]]>heights[i]:
-                smaller_indexs[stck.pop()] = i
-            stck.append(i)
-        while len(stck)>0:
-            smaller_indexs[stck.pop()] = -1
-        return smaller_indexs
-    
     def largestRectangleArea(self, heights: list[int]) -> int:
+        heights_len = len(heights)
         max_area = 0
-        length = len(heights)
-        smaller_indexs = self.get_prev_smaller_index(heights, length)
-        # print(smaller_indexs)
-        stck = list()
-        for i in range(length):
-            while len(stck)>0 and heights[stck[-1]]>heights[i]:
-                cur_index = stck.pop()
-                t_area =  (i-smaller_indexs[cur_index]-1)*heights[cur_index]
-                max_area = max(t_area, max_area)
+        stck = list() # has indexs
+        area = list()
+        for i in range(heights_len):
+            area.append(0)
+            cur_height = heights[i]
+            while stck and heights[stck[-1]]>cur_height:
+                temp = stck.pop()
+                prev_smaller = -1 if not stck else stck[-1]
+                area[temp] =(heights[temp]*(i-prev_smaller-1))
+                max_area = max(max_area, area[temp])
             stck.append(i)
-        while len(stck)>0:
-            cur_index = stck.pop()
-            t_area =  (length-smaller_indexs[cur_index]-1)*heights[cur_index]
-            max_area = max(t_area, max_area)
+        #     print(stck)
+        # print(area)
+        while stck:
+            temp = stck.pop()
+            prev_smaller = -1 if not stck else stck[-1]
+            area[temp]+=(heights[temp]*(heights_len-prev_smaller-1))
+            max_area = max(max_area, area[temp])
         return max_area

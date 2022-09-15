@@ -1,4 +1,5 @@
-//  https://www.lintcode.com/problem/907/
+// https://leetcode.com/problems/rearrange-string-k-distance-apart
+//  https://www.lintcode.com/problem/907
 /*
 Description
 Given a non-empty string s and an integer k, rearrange the string such that the

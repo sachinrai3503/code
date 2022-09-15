@@ -1,5 +1,6 @@
 // https://leetcode.com/problems/find-k-pairs-with-smallest-sums/
 // https://www.geeksforgeeks.org/k-maximum-sum-combinations-two-arrays/
+// https://www.geeksforgeeks.org/find-k-pairs-smallest-sums-two-arrays/
 /*
  You are given two integer arrays nums1 and nums2 sorted in ascending order and
   an integer k.
