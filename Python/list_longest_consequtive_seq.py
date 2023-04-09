@@ -18,6 +18,9 @@ Constraints:
 
 Follow up: Could you implement the O(n) solution?
 """
+
+# C hash + Union find - arr_longest_consequtive_seq.c
+
 from sys import maxsize
 
 class Solution:

@@ -1,4 +1,5 @@
 # https://leetcode.com/problems/implement-strstr/
+# https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string
 # https://www.geeksforgeeks.org/finite-automata-algorithm-for-pattern-searching/
 # https://www.geeksforgeeks.org/pattern-searching-set-5-efficient-constructtion-of-finite-automata/
 """
