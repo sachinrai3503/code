@@ -28,6 +28,8 @@ Constraints:
 str1 and str2 consist of English uppercase letters.
 */
 
+//  Python version in str_gcd_of_2_string.py
+
 #include <stdio.h>
 #include <malloc.h>
 

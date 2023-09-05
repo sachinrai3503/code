@@ -1,4 +1,4 @@
-# https://www.lintcode.com/problem/617/description
+# https://www.lintcode.com/problem/617/
 # https://leetcode.com/problems/maximum-average-subarray-ii
 """
 Given an array with positive and negative numbers, find the maximum average\

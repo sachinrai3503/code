@@ -38,43 +38,26 @@ class TreeNode:
 
 class Solution:
 
-    def toCDLL(self, root):
-        if root is None: return None
-        left = self.toCDLL(root.left)
-        right = self.toCDLL(root.right)
-        head = None
-        if left is not None:
-            head = left
-            left.left.right = root
-            root.left = left.left
-            if right is not None:
-                left.left = right.left
-            else:
-                left.left = root
-        else:
-            head = root
-            if right is not None:
-                root.left = right.left
-            else:
-                root.left = root
-        if right is not None:
-            if left is not None:
-                right.left.right = left
-            else:
-                right.left.right = root
-            right.left = root
-            root.right = right
-        else:
-            if left is not None:
-                root.right = left
-            else:
-                root.right = root
-        return head
+    def _connect_circular_dll(self, list1_head, list2_head):
+        list1_tail, list2_tail = list1_head.left, list2_head.left
+        list1_head.left = list2_tail
+        list2_tail.right = list1_head
+        list1_tail.right = list2_head
+        list2_head.left = list1_tail
 
     """
     @param root: root of a tree
     @return: head node of a doubly linked list
     """
     def treeToDoublyList(self, root):
-        # Write your code here.
-        return self.toCDLL(root)
+        if root is None: return None
+        left_dll_head = self.treeToDoublyList(root.left)
+        right_dll_head = self.treeToDoublyList(root.right)
+        root.left = root.right = root
+        if left_dll_head:
+            self._connect_circular_dll(left_dll_head, root)
+        else:
+            left_dll_head = root
+        if right_dll_head:
+            self._connect_circular_dll(left_dll_head, right_dll_head)
+        return left_dll_head

@@ -1,5 +1,5 @@
-// https://leetcode.com/problems/find-the-duplicate-number
-/*
+# https://leetcode.com/problems/find-the-duplicate-number
+"""
 Given an array of integers nums containing n + 1 integers where each integer is in
  the range [1, n] inclusive.
 
@@ -26,26 +26,30 @@ All the integers in nums appear only once except for precisely one integer which
 Follow up:
 How can we prove that at least one duplicate number must exist in nums?
 Can you solve the problem in linear runtime complexity?
-*/
+"""
 
-// Same problem with binary search - arr_duplicate_number.py
+# Same problem with O(n) - arr_duplicate_number.c
 
-#include <stdio.h>
+from typing import List
 
-void swap(int *a, int *b){
-    (*a)^=(*b)^=(*a)^=(*b);
-}
+class Solution:
 
-int findDuplicate(int* nums, int numsSize){
-    int i = 0;
-    for(;i<numsSize;i++){
-        while(nums[i]!=(i+1)){
-            int exp_index = nums[i]-1;
-            if(exp_index<i) return nums[i];
-            if(nums[exp_index]==nums[i]) return nums[i];
-            swap(nums+i, nums+exp_index);
-        }
-    }
-    printf("Control should not reach here.\n");
-    return -1;
-}
+    def get_count(self, nums, k):
+        count = 0
+        for num in nums:
+            if num<=k: count+=1
+        return count
+
+    def findDuplicate(self, nums: List[int]) -> int:
+        dup = -1
+        nums_len = len(nums)
+        s, e = 0, nums_len-1
+        while s<=e:
+            mid = s + (e-s)//2
+            count = self.get_count(nums, mid)
+            if count<=mid:
+                s = mid+1
+            else:
+                dup = mid
+                e = mid-1
+        return dup

@@ -17,31 +17,20 @@ Input: n=2, k=2
 Output: 4
 """
 
-from collections import deque
-
 class Solution:
     """
     @param n: non-negative integer, n posts
     @param k: non-negative integer, k colors
     @return: an integer, the total number of ways
     """
-	# m = no of adjacent fence having same colour
-	# f(1) = k
-	# f(i) = k*f(i-1) :: for 2<=i<=m
-	# f(i) = k*f(i-1) - k :: for i==(m+1)
-	# f(i) = k*f(i-1) - k(f(i-3) - f(i-3)/k) => k*f(i-1) - (k-1)f(i-3) :: for i>(m+1)
     def num_ways(self, n: int, k: int) -> int:
-        que = deque()
-        m = 2
+        if n==0 or k==0: return 0
+        total, same, diff = 0, 0, 0
         for i in range(1, n+1):
-            if i<=m:
-                val = k if i==1 else k*que[-1]
-                que.append(val)
-            elif i==m+1:
-                val = k*que[-1] - k
-                que.append(val)
+            if i==1:
+                same, diff, total = 0, k, k
             else:
-                val = k*que[-1] - (k-1)*que.popleft()
-                que.append(val)
-            # print(que)
-        return que[-1]
+                same = diff
+                diff = total*(k-1)
+                total = same+diff
+        return total

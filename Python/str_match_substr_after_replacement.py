@@ -48,14 +48,22 @@ class Solution:
         if pat_char not in words_map: return False
         if txt_char not in words_map[pat_char]: return False
         return True
+    
+    def is_match_pat(self, char1, char2, words_map):
+        if char1==char2: return True
+        char1_map_set = words_map.get(char1, set())
+        char2_map_set = words_map.get(char2, set())
+        if not char1_map_set and not char2_map_set: return False
+        if char1 in char2_map_set or char2 in char1_map_set: return True
+        if char1_map_set.intersection(char2_map_set): return True
+        return False
 
-    def z_function(self, s, s_len, words_map):
-        z_arr = [None]
+    def z_function(self, s, s_len, z_arr, start, words_map, match_func):
         l, r = 0, 0
-        for i in range(1, s_len):
+        for i in range(start, s_len):
             if i>r:
                 l, r = i, i
-                while r<s_len and self.is_match(s[r-l], s[r], words_map):
+                while r<s_len and match_func(s[r-l], s[r], words_map):
                     r+=1
                 z_arr.append(r-l)
                 r-=1
@@ -65,20 +73,21 @@ class Solution:
                     z_arr.append(z_arr[k])
                 else:
                     l = i
-                    while r<s_len and self.is_match(s[r-l], s[r], words_map):
+                    while r<s_len and match_func(s[r-l], s[r], words_map):
                         r+=1
                     z_arr.append(r-l)
                     r-=1
-        print(f'{z_arr=}')
+        # print(f'{z_arr=}')
         return z_arr
 
-    # Z Won't work
+    # Z Won't work - Need to modify
     # TC - s = "llllllf", sub = "i1tILf",
     # mapping = [["i", "l"], ["1", "l"], ["t", "l"], ["I", "l"], ["L", "l"]]
     # z_arr=[None, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0]
     # z_str='i1tILf$llllllf' z_len=14
     # The z_arr for 'sub' in sub$s is not factoring in the mapping
-    def matchReplacement_Z(self, s: str, sub: str, mappings: List[List[str]]) -> bool:
+    # So, computed z_arr for sub seperately and then use it for s
+    def matchReplacement(self, s: str, sub: str, mappings: List[List[str]]) -> bool:
         s_len = len(s)
         sub_len = len(sub)
         words_map = dict()
@@ -87,13 +96,17 @@ class Solution:
                 words_map[c1].add(c2)
             else:
                 words_map[c1] = {c2}
-        print(f'{words_map=}')
+        # print(f'{words_map=}')
+        z_arr = [0]
+        # print(f'{sub=}')
+        self.z_function(sub, sub_len, z_arr, 1, words_map, self.is_match_pat)
         z_str = sub + '$' + s
         z_len = len(z_str)
-        z_arr = self.z_function(z_str, z_len, words_map)
-        print(f'{z_str=} {z_len=}')
-        for i in range(z_len):
-            if z_arr[i] and z_arr[i]==sub_len:
+        z_arr.append(0) # for $
+        # print(f'{z_str=} {z_len=}')
+        self.z_function(z_str, z_len, z_arr, sub_len+1, words_map, self.is_match)
+        for i in range(sub_len+1, z_len):
+            if z_arr[i]==sub_len:
                 # print(f'{(i-sub_len-1)=}')
                 return True
         return False
@@ -149,7 +162,8 @@ class Solution:
         sub_lps = self.get_lps(sub, sub_len)
         return self.kmp(s, s_len, sub, sub_len, sub_lps, words_map)
 
-    def matchReplacement(self, s: str, sub: str, mappings: List[List[str]]) -> bool:
+    # This is simple logic. Passed but with lot of time
+    def matchReplacement_1(self, s: str, sub: str, mappings: List[List[str]]) -> bool:
         s_len = len(s)
         sub_len = len(sub)
         words_map = dict()

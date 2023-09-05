@@ -73,3 +73,49 @@ class Solution:
             else:
                 e = mid-1
         return last_node_index+1
+
+# Better solution
+class Solution2:
+
+    def get_max_level(self, root):
+        level=-1
+        while root:
+            level+=1
+            root = root.left
+        return level
+    
+    def find_node(self, root, cur_index, s, e, k):
+        while root:
+            if cur_index==k: return True
+            mid = s + (e-s)//2
+            if k<=mid:
+                root = root.left
+                cur_index = cur_index*2 + 1
+                e = mid
+            else:
+                root = root.right
+                cur_index = cur_index*2 + 2
+                s = mid+1
+        return False
+
+    def countNodes(self, root: Optional[TreeNode]) -> int:
+        max_level = self.get_max_level(root)
+        # print(f'{max_level=}')
+        if max_level==-1: return 0
+        s = (1<<max_level)-1
+        e = 2*s
+        last_found_node = -1
+        cur_index = 0
+        while root:
+            mid = s + (e-s)//2
+            # print(f'{s=} {e=} {mid=} {cur_index=}')
+            if self.find_node(root, cur_index, s, e, mid):
+                root = root.right
+                last_found_node = mid
+                cur_index = cur_index*2 + 2
+                s = mid+1
+            else:
+                root = root.left
+                cur_index = cur_index*2 + 1
+                e = mid-1
+        return last_found_node+1

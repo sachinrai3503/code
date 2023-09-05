@@ -3,6 +3,7 @@
 # https://www.geeksforgeeks.org/connect-nodes-at-same-level-with-o1-extra-space
 # https://www.geeksforgeeks.org/connect-nodes-at-same-level/
 
+from typing import Optional
 
 # Definition for a Node.
 class Node:
