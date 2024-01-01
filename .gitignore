@@ -1,4 +1,5 @@
 .vscode/
 *.exe
-ZZZ.*
-zzz.*
+ZZZ*
+zzz*
+*.DS_Store
