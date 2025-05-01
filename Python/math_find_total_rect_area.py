@@ -1,35 +1,46 @@
-# https://leetcode.com/problems/rectangle-area
 # https://leetcode.com/problems/rectangle-overlap
 # https://www.geeksforgeeks.org/total-area-two-overlapping-rectangles
 """
-Given the coordinates of two rectilinear rectangles in a 2D plane,
- return the total area covered by the two rectangles.
-
-The first rectangle is defined by its bottom-left corner (ax1, ay1)
- and its top-right corner (ax2, ay2).
-
-The second rectangle is defined by its bottom-left corner (bx1, by1) and its
- top-right corner (bx2, by2).
+An axis-aligned rectangle is represented as a list [x1, y1, x2, y2], where (x1, y1) is
+ the coordinate of its bottom-left corner, and (x2, y2) is the coordinate of its top-right corner.
+ Its top and bottom edges are parallel to the X-axis, and its left and right edges are parallel to the Y-axis.
+Two rectangles overlap if the area of their intersection is positive. To be clear, two rectangles 
+ that only touch at the corner or edges do not overlap.
+Given two axis-aligned rectangles rec1 and rec2, return true if they overlap, otherwise return false.
 
 Example 1:
-Rectangle Area
-Input: ax1 = -3, ay1 = 0, ax2 = 3, ay2 = 4, bx1 = 0, by1 = -1, bx2 = 9, by2 = 2
-Output: 45
+Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
+Output: true
 
 Example 2:
-Input: ax1 = -2, ay1 = -2, ax2 = 2, ay2 = 2, bx1 = -2, by1 = -2, bx2 = 2, by2 = 2
-Output: 16
+Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
+Output: false
+
+Example 3:
+Input: rec1 = [0,0,1,1], rec2 = [2,2,3,3]
+Output: false
+
 
 Constraints:
--104 <= ax1, ay1, ax2, ay2, bx1, by1, bx2, by2 <= 104
+rec1.length == 4
+rec2.length == 4
+-109 <= rec1[i], rec2[i] <= 109
+rec1 and rec2 represent a valid rectangle with a non-zero area.
 """
 
+from typing import List
+
 class Solution:
-    def computeArea(self, ax1: int, ay1: int, ax2: int, ay2: int, bx1: int, by1: int, bx2: int, by2: int) -> int:
-        area1 = (ax2-ax1)*(ay2-ay1)
-        area2 = (bx2-bx1)*(by2-by1)
-        area_overlap = 0
-        x_overlap_len = (min(bx2, ax2)-max(ax1, bx1))
-        y_overlap_len = (min(ay2, by2)-max(ay1, by1))
-        if x_overlap_len>0 and y_overlap_len>0: area_overlap = x_overlap_len*y_overlap_len
-        return area1+area2-area_overlap
+    def isRectangleOverlap(self, rec1: List[int], rec2: List[int]) -> bool:
+
+        # check if either rectangle is actually a line
+        if (rec1[0] == rec1[2] or rec1[1] == rec1[3] or \
+            rec2[0] == rec2[2] or rec2[1] == rec2[3]):
+            # the line cannot have positive overlap
+            return False
+
+        if rec2[1]>=rec1[3]: return False
+        if rec2[3]<=rec1[1]: return False
+        if rec2[2]<=rec1[0]: return False
+        if rec2[0]>=rec1[2]: return False
+        return True

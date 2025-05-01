@@ -44,74 +44,63 @@ queries[i].length == 2
 Ai, Bi, Cj, Dj consist of lower case English letters and digits.
 """
 
-from collections import deque
+from collections import deque, defaultdict
 from typing import List
 
 class Graph:
-    def __init__(self, equations, values):
-        self.data = dict()
-        self.vertex_count = 0
-        self.vertex_index = dict()
-        self.last_index = 0
-        self.add_edges(equations, values)
-        self.vertex_count = len(self.vertex_index)
+    def __init__(self, edges, weights):
+        self.data = defaultdict(set) # {'u':{v,v1,v2}, ...}
+        self.weight_map = dict() # {'u-v':x, 'v-u':1/x}
+        self.add_edges(edges, weights)
     
-    def add_edges(self, equations, values):
-        for i in range(len(equations)):
-            u, v, w = equations[i][0], equations[i][1], values[i]
-            self._add_edge(u,v,w)
-            self._add_edge(v,u,1/w)
-            self._set_index(u)
-            self._set_index(v)
+    def add_edges(self, edges, weights):
+        for edge, weight in zip(edges, weights):
+            self.add_edge(edge[0], edge[1], weight)
+            self.add_edge(edge[1], edge[0], 1/weight)
+
+    def add_edge(self, u, v, weight):
+        self.data[u].add(v)
+        self.weight_map[(u,v)] = weight
+
+    def print_graph(self):
+        print(f'{self.data=}\n{self.weight_map}')
+        print('*'*70)
     
-    def _add_edge(self, u, v, w):
-        adjs = self.data.get(u, [])
-        adjs.append((v, w))
-        self.data[u] = adjs
+    def get_adj_vertex(self, u):
+        return self.data[u]
 
-    def _set_index(self, vertex):
-        if vertex not in self.vertex_index:
-            self.vertex_index[vertex] = self.last_index
-            self.last_index+=1
-
-    def get_index(self, vertex):
-        return self.vertex_index.get(vertex, None)
+    def get_weight(self, u, v):
+        return self.weight_map[(u, v)]
     
-    def get_adj_vertexs(self, vertex):
-        return self.data.get(vertex, None)
-
 class Solution:
 
-    def compute_values(self, graph):
-        n = graph.vertex_count
-        values = [[-1.0 for _ in range(n)] for _ in range(n)]
+    def compute_division(self, graph, s, t):
+        if s not in graph.data or t not in graph.data: return -1.0
+        if s==t: return 1.0
+        if (s, t) in graph.weight_map: return graph.get_weight(s, t)
+        visited = set()
         que = deque()
-        for ver in graph.vertex_index.keys():
-            que.append([ver, ver, 1])
-            values[graph.get_index(ver)][graph.get_index(ver)] = 1
-        # print(f'{que=}')
+        que.append((s, 1.0))
+        visited.add(s)
         while que:
-            temp = que.popleft()
-            src, cur, val = temp
-            adj_vertexs = graph.get_adj_vertexs(cur)
-            if not adj_vertexs: continue
-            for adj_vertex in adj_vertexs:
-                v, w = adj_vertex
-                if values[graph.get_index(src)][graph.get_index(v)] is not -1.0: continue
-                t_val = val*w
-                values[graph.get_index(src)][graph.get_index(v)] = t_val
-                que.append([src, v, t_val])
-            # print(f'{que=}')
-        return values
+            u, s_u_val = que.popleft()
+            if u==t: return s_u_val
+            adj_vertex = graph.get_adj_vertex(u)
+            for v in adj_vertex:
+                if v not in visited:
+                    u_v_val = graph.get_weight(u, v)
+                    s_v_val = s_u_val*u_v_val
+                    que.append((v, s_v_val))
+                    visited.add(v)
+                    graph.add_edge(s, v, s_v_val) # These 2 lines are to make future queries fast
+                    graph.add_edge(v, s, 1/s_v_val)
+        return -1
 
     def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
-        graph = Graph(equations, values)
-        # print(f'{graph.data=} {graph.vertex_index=}')
-        values = self.compute_values(graph)
-        # print(f'{values=}')
         op = list()
+        graph = Graph(equations, values)
+        # graph.print_graph()
         for u, v in queries:
-            u_index, v_index = graph.get_index(u), graph.get_index(v)
-            if u_index is None or v_index is None: op.append(-1.0)
-            else: op.append(values[u_index][v_index])
+            op.append(self.compute_division(graph, u, v))
+            # graph.print_graph()
         return op

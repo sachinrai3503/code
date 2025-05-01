@@ -45,36 +45,20 @@ All elements of candidates are distinct.
 1 <= target <= 500
 """
 
-def append(op_list, index, value):
-    if op_list[index] == None:
-        op_list[index] = list()
-    op_list[index].append(value)
+from typing import List
 
 class Solution:
-    
-    def get_all_subset(self, op, subset, target, item_list):
-        if target==0:
-            # print(item_list)
-            item_tuple = tuple(sorted(item_list))
-            subset.add(item_tuple)
-            return
-        if not op[target]: return
-        for item in op[target]:
-            item_list.append(target-item)
-            self.get_all_subset(op, subset, item, item_list)
-            item_list.pop()
-    
-    def combinationSum(self, candidates: list[int], target: int) -> list[list[int]]:
-        subset = set()
-        op = [None]*(target+1)
-        for i in range(len(candidates)-1,-1,-1):
-            candidate = candidates[i]
-            for j in range(candidate, target+1):
-                if j==candidate: append(op, j, 0)
-                elif op[j-candidate]: append(op, j, j-candidate)
-        for item in op:
-            if item: item.sort(reverse=True)
-        # print(op)
-        self.get_all_subset(op, subset, target, list())
-        return subset
-        
+    def combinationSum(self, candidates: List[int], target: int) -> List[List[int]]:
+        dp = [list() for i in range(target+1)]
+        dp[0].append([])
+        visited = set()
+        for candidate in candidates:
+            if candidate in visited: continue
+            for i in range(candidate, target+1):
+                if dp[i-candidate]:
+                    temp_list = dp[i-candidate]
+                    for temp in temp_list:
+                        dp[i].append([candidate]+temp)
+            visited.add(candidate)
+            # print(f'{dp=}')
+        return dp[target]

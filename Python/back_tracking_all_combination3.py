@@ -60,7 +60,50 @@ class Solution:
             arr[current_index] = None
         return
 
-    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+    def combinationSum3_1(self, k: int, n: int) -> List[List[int]]:
         arr = [None for i in range(k)]
         self.get_all_combinations(arr, k, n, 0, 1)
+        return self.op
+    
+    def get_all_combination2(self, n, start_from, arr, k, i):
+        # print(f'-- {n=} {start_from=} {arr=} {k=} {i=}')
+        if n==0:
+            self.op.append(list(arr))
+            return False # Means no futher combination possible
+        if i==k:
+            return True if n>0 else False
+        remaining_k = k - i
+        min_possible = (remaining_k*(start_from + (start_from + remaining_k - 1)))//2
+        max_possible = (remaining_k*(9 + (9 - remaining_k + 1)))//2
+        # print(f'== {n=} {start_from=} {arr=} {k=} {i=} {min_possible=} {max_possible=}')
+        if n<min_possible: return False
+        if n>max_possible: return True
+        for j in range(start_from, 10):
+            arr[i] = j
+            if not self.get_all_combination2(n-j, j+1, arr, k, i+1):
+                break
+        return True
+
+    def combinationSum3_2(self, k: int, n: int) -> List[List[int]]:
+        arr = [None for i in range(k)]
+        if not self.get_all_combination2(n, 1, arr, k, 0):
+            return []
+        return self.op
+
+    def get_combinations(self, n, i, k, cur_op, prev_sum, start_from):
+        if i==k:
+            if prev_sum==n:
+                self.op.append(list(cur_op))
+            return
+        if (prev_sum+start_from)>n: return
+        for j in range(start_from, 10):
+            if (prev_sum+j)<=n:
+                cur_op.append(j)
+                self.get_combinations(n, i+1, k, cur_op, prev_sum+j, j+1)
+                cur_op.pop()
+            else:
+                break
+
+    def combinationSum3(self, k: int, n: int) -> List[List[int]]:
+        self.get_combinations(n, 0, k, [], 0, 1)
         return self.op

@@ -34,20 +34,22 @@ Constraints:
 1 <= coins[i] <= 231 - 1
 0 <= amount <= 104
 """
-from sys import maxsize
 
-def get_min(a, b):
-    return a if a<b else b
+from sys import maxsize
+from typing import List
 
 class Solution:
-    def coinChange(self, coins: list[int], amount: int) -> int:
-        if amount==0: return 0
-        op = [maxsize]*(amount+1)
-        for i in range(len(coins)-1,-1,-1):
+    def coinChange(self, coins: List[int], amount: int) -> int:
+        coins_count = len(coins)
+        dp = [maxsize for i in range(amount+1)]
+        visited = set()
+        dp[0] = 0
+        for i in range(coins_count):
             coin = coins[i]
+            if coin in visited: continue
+            visited.add(coin)
             for j in range(coin, amount+1):
-                if j==coin: op[j] = 1
-                else:
-                    with_coin = op[j-coin]+1 if op[j-coin]!=maxsize else op[j-coin]
-                    op[j] = get_min(op[j], with_coin)
-        return op[amount] if op[amount]!=maxsize else -1
+                if dp[j-coin]!=maxsize:
+                    dp[j] = min(dp[j], dp[j-coin]+1)
+        # print(f'{dp=}')
+        return dp[-1] if dp[-1]!=maxsize else -1

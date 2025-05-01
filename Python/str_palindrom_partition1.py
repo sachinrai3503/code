@@ -18,33 +18,29 @@ Constraints:
 s contains only lowercase English letters.
 """
 
+from typing import List
+
 class Solution:
-    
-    def get_all_palindrom_partition(self, s, s_len, dp, index, cur_op, op):
-        if index==s_len:
-            op.append(list(cur_op))
-            return
-        for partition_index in dp[index]:
-            cur_op.append(s[index:partition_index+1])
-            self.get_all_palindrom_partition(s, s_len, dp, partition_index+1, cur_op, op)
-            cur_op.pop()
-    
-    def partition(self, s: str) -> list[list[str]]:
-        op = list()
+    def partition(self, s: str) -> List[List[str]]:
         s_len = len(s)
-        dp = [list() for i in range(s_len)]
-        is_palin = [False for i in range(s_len)]
+        op = [list() for i in range(s_len)]
+        dp = [False for i in range(s_len)]
         for i in range(s_len-1, -1, -1):
-            prev = None
+            prev = False
             for j in range(i, s_len):
-                t_prev = is_palin[j]
-                if s[i]==s[j]:
-                    if i==j or (j-i)==1: is_palin[j] = True
-                    elif prev: is_palin[j] = True
-                    else: is_palin[j] = False
-                else:
-                    is_palin[j] = False
-                prev = t_prev
-                if is_palin[j]: dp[i].append(j)
-        self.get_all_palindrom_partition(s, s_len, dp, 0, list(), op)
-        return op
+                cur_result = False
+                if s[i]==s[j] and ((j-i)<2 or prev):
+                    sub_str = s[i:j+1]
+                    other_sub_str_list = op[j+1] if j<(s_len-1) else []
+                    if not other_sub_str_list:
+                        op[i].append([sub_str])
+                    else:
+                        for other_sub_str in other_sub_str_list:
+                            op[i].append([sub_str] + other_sub_str)
+                    cur_result = True
+                prev = dp[j]
+                dp[j] = cur_result
+            # print(f'{dp=}')
+            # print(f'{op=}')
+        return op[0]
+

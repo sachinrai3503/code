@@ -35,57 +35,81 @@ accounts[i][0] consists of English letters.
 accounts[i][j] (for j > 0) is a valid email.
 """
 
-class DJSet:
-    def __init__(self, n):
-        self.parent = [i for i in range(n)]
-        self.rank = [1 for i in range(n)]
+from typing import List
+from collections import defaultdict
 
-    def find_parent(self, u):
-        if self.parent[u]==u: return u
-        self.parent[u] = self.find_parent(self.parent[u])
-        return self.parent[u]
+class DJSet:
+    def __init__(self, size):
+        self.size = size
+        self.parent = [i for i in range(size)]
+        self.rank = [1 for i in range(size)]
     
-    def union(self, u, v):
-        p_u = self.find_parent(u)
-        p_v = self.find_parent(v)
-        if p_u==p_v: return
-        # Here rank is by depth
-        if self.rank[p_u]==self.rank[p_v]:
-            self.parent[p_v] = p_u
-            self.rank[p_u]+=1
-        elif self.rank[p_u]<self.rank[p_v]:
-            self.parent[p_u] = p_v
-        elif self.rank[p_u]>self.rank[p_v]:
-            self.parent[p_v] = p_u
-            
-    def print_dj_set(self):
-        print(self.parent)
-        print(self.rank)
-            
+    def find_parent(self, i):
+        if self.parent[i]==i: return i
+        self.parent[i] = self.find_parent(self.parent[i])
+        return self.parent[i]
+    
+    def union(self, i, j):
+        pi = self.find_parent(i)
+        pj = self.find_parent(j)
+        if pi==pj: return
+        ri = self.rank[pi]
+        rj = self.rank[pj]
+        if ri>rj:
+            self.parent[pj] = pi
+        elif ri<rj:
+            self.parent[pi] = pj
+        else:
+            self.parent[pj] = pi
+            self.rank[pi]+=1
+
 class Solution:
-    def accountsMerge(self, accounts: list[list[str]]) -> list[list[str]]:
-        n = len(accounts)
-        dj_set = DJSet(n)
-        email_to_index_map = dict()
-        for i in range(n):
-            account = accounts[i]
-            for email in account[1:]:
-                parent = email_to_index_map.get(email, None)
-                if parent is None:
-                    email_to_index_map[email] = i
+    def accountsMerge1(self, accounts: List[List[str]]) -> List[List[str]]:
+        account_len = len(accounts)
+        dj_set = DJSet(account_len)
+        email_to_acc_map = dict()
+        acc_to_email_map = dict()
+        for i in range(account_len):
+            for email in accounts[i][1:]:
+                if email not in email_to_acc_map:
+                    email_to_acc_map[email] = i
                 else:
-                    dj_set.union(parent, i)
-            # dj_set.print_dj_set()
-        # print(email_to_index_map)
-        merged_acc = list()
-        for i in range(n):
+                    dj_set.union(email_to_acc_map[email], i)
+        # print(f'{dj_set.parent=}')
+        for i in range(dj_set.size):
             parent_i = dj_set.find_parent(i)
-            if parent_i==i:
-                merged_acc.append(accounts[i])
+            # print(f'{i=} {parent_i=}')
+            if parent_i not in acc_to_email_map:
+                acc_to_email_map[parent_i] = [accounts[i][0], accounts[i][1:]]
             else:
-                accounts[parent_i].extend(accounts[i][1:])
-        # print(merged_acc)
-        for i in range(len(merged_acc)):
-            acc = merged_acc[i]
-            merged_acc[i] = acc[0:1] + sorted(set(acc[1:]))
-        return merged_acc
+                acc_to_email_map[parent_i][1].extend(accounts[i][1:])
+        # print(f'{acc_to_email_map=}')
+        op = list()
+        for key in acc_to_email_map:
+            name, emails = acc_to_email_map[key]
+            emails = set(emails)
+            op.append([name, *sorted(emails)])
+        return op
+
+    # no need for set and simple
+    def accountsMerge(self, accounts: List[List[str]]) -> List[List[str]]:
+        account_len = len(accounts)
+        dj_set = DJSet(account_len)
+        email_to_acc_map = dict()
+        acc_to_email_map = defaultdict(list)
+        for i in range(account_len):
+            for email in accounts[i][1:]:
+                if email not in email_to_acc_map:
+                    email_to_acc_map[email] = i
+                else:
+                    dj_set.union(email_to_acc_map[email], i)
+        # print(f'{dj_set.parent=}')
+        for email, i in email_to_acc_map.items():
+            parent = dj_set.find_parent(i)
+            acc_to_email_map[parent].append(email)
+        # print(f'{acc_to_email_map=}')
+        op = list()
+        for key in acc_to_email_map:
+            name, emails = accounts[key][0], acc_to_email_map[key]
+            op.append([name, *sorted(emails)])
+        return op

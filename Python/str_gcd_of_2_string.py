@@ -31,78 +31,41 @@ str1 and str2 consist of English uppercase letters.
 
 class Solution:
 
-    def match_substr(self, s1, s1_len, s2, s2_len): # len(s2)<=len(s1)
-        if s1_len<s2_len: return False
-        if (s1_len%s2_len)!=0: return False
-        i = 0
-        while i<s1_len:
-            j = 0
-            while i<s1_len and j<s2_len:
-                if s1[i]!=s2[j]: return False
-                i+=1
-                j+=1
-            if i==s1_len and j!=s2_len: return False
-        return True
+    def gcd(self, a, b):
+        if b==0:
+            return a
+        return self.gcd(b, a%b)
 
-    # O(m*n) time complexity
-    def gcdOfStrings1(self, str1: str, str2: str) -> str:
-        str1_len, str2_len = len(str1), len(str2)
-        small_str, small_str_len = None, 0
-        if str1_len<=str2_len:
-            small_str, small_str_len = str1, str1_len
-        else:
-            small_str, small_str_len = str2, str2_len
-        i = 1 # substr repeat count
-        while (small_str_len//i)>0:
-            if (small_str_len%i)==0:
-                t_len=small_str_len//i
-                # print(f'{t_len=}')
-                t_str = small_str[:t_len]
-                if self.match_substr(str1, str1_len, t_str, t_len) and self.match_substr(str2, str2_len, t_str, t_len):
-                    return t_str
-            i+=1
-        return ""
-
-    def get_lps(self, s, s_len):
+    def getLPS(self, s, s_len):
         lps = list()
-        i = 0
         for i in range(s_len):
             j = i-1
-            while j>=0 and s[lps[j]]!=s[i]:
+            while j>-1 and s[i]!=s[lps[j]]:
                 j = lps[j]-1
-            if j<0:
+            if j==-1:
                 lps.append(0)
             else:
                 lps.append(lps[j]+1)
+        # print(f'{lps=}')
         return lps[-1]
+    
+    def getRepeatingString(self, s, s_len):
+        lps = self.getLPS(s, s_len)
+        if lps==0: return (s, 1) # s is repeating 1s
+        if lps<(s_len//2 + (1 if s_len&1==1 else 0)):
+            return ('', 0)
+        rep_len = s_len - lps
+        if (s_len%rep_len)!=0:
+            return ('', 0)
+        return (s[:rep_len], s_len//rep_len)
 
-    def compare(self, s1, s2, s_len):
-        for i in range(s_len):
-            if s1[i]!=s2[i]: return False
-        return True
-
-    def is_valid(self, s_len, s_lps, s_rep_chars_count):
-        if s_lps==0: return True
-        if s_lps<((s_len+1)//2): return False
-        if (s_len%s_rep_chars_count)!=0: return False
-        return True
-
-    def gcd(self, a, b):
-        if b==0: return a
-        return self.gcd(b,a%b)
+    def gcdOfStrings_1(self, str1: str, str2: str) -> str:
+        s1_rep, s1_rep_len = self.getRepeatingString(str1, len(str1))
+        s2_rep, s2_rep_len = self.getRepeatingString(str2, len(str2))
+        if s1_rep=='' or s2_rep=='': return ''
+        if s1_rep!=s2_rep: return ''
+        return s1_rep*(self.gcd(s1_rep_len, s2_rep_len))
 
     def gcdOfStrings(self, str1: str, str2: str) -> str:
-        str1_len, str2_len = len(str1), len(str2)
-        str1_lps = self.get_lps(str1, str1_len)
-        str2_lps = self.get_lps(str2, str2_len)
-        str1_rep_chars_count = str1_len - str1_lps
-        str2_rep_chars_count = str2_len - str2_lps
-        # print(f'{str1_len=} {str1_lps=} {str1_rep_chars_count=}')
-        # print(f'{str2_len=} {str2_lps=} {str2_rep_chars_count=}')
-        if not self.is_valid(str1_len, str1_lps, str1_rep_chars_count) or \
-            not self.is_valid(str2_len, str2_lps, str2_rep_chars_count):
-            # print('Here')
-            return ""
-        if str1_rep_chars_count!=str2_rep_chars_count: return ""
-        if not self.compare(str1, str2, str1_rep_chars_count): return ""
-        return str1[:self.gcd(str1_len, str2_len)]
+        if (str1+str2)!=(str2+str1): return ''
+        return str1[:self.gcd(len(str1), len(str2))]

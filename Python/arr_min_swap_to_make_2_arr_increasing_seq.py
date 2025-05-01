@@ -27,23 +27,62 @@ nums2.length == nums1.length
 0 <= nums1[i], nums2[i] <= 2 * 105
 """
 
-from sys import maxsize
+from typing import List
 
 class Solution:
-    def minSwap(self, nums1: list[int], nums2: list[int]) -> int:
-        with_swap, without_swap = 1, 0
-        prev_a, prev_b = nums1[-1], nums2[-1]
-        for i in range(len(nums1)-2, -1, -1):
-            t_with, t_without = maxsize, maxsize
-            prev_a, prev_b = nums1[i+1], nums2[i+1]
-            if nums1[i]<prev_a and nums2[i]<prev_b:
-                t_without = without_swap
-                t_with = 1 + with_swap
-            if nums1[i]<prev_b and nums2[i]<prev_a:
-                t_without = min(t_without, with_swap)
-                t_with = min(t_with, 1 + without_swap)
-            with_swap = t_with
-            without_swap = t_without
-            # print(without_swap, with_swap)
-            # print('*'*20)
-        return min(with_swap, without_swap)
+
+    def can_swap(self, nums1, nums2, i):
+        if i==0: return True
+        j = i-1
+        if nums1[j]<nums2[i] and nums2[j]<nums1[i]: return True
+        return False
+    
+    def can_swap_at_i(self, nums1, nums2, nums_len, i):
+        j = i+1
+        if j==nums_len: return True
+        if nums1[i]<nums2[j] and nums2[i]<nums1[j]: return True
+        return False
+
+    def is_swap_needed(self, nums1, nums2, nums_len, i):
+        if i==(nums_len-1): return False
+        j = i+1
+        if nums1[i]>=nums1[j] or nums2[i]>=nums2[j]: return True
+        return False
+
+    # will not give the min swaps for below TC
+    # [0,7,8,10,10,11,12,13,19,18] & [4,4,5,7,11,14,15,16,17,20]
+    def minSwap1(self, nums1: List[int], nums2: List[int]) -> int:
+        count = 0
+        nums_len = len(nums1)
+        for i in range(nums_len):
+            if self.is_swap_needed(nums1, nums2, nums_len, i):
+                count+=1
+                can_swap_i = self.can_swap(nums1, nums2, i)
+                can_swap_i_1 = self.can_swap(nums1, nums2, i+1)
+                if can_swap_i and can_swap_i_1:
+                    print(f'swapping {i=}')
+                    nums1[i], nums2[i] = nums2[i], nums1[i]
+                elif not can_swap_i and can_swap_i_1:
+                    print(f'swapping {i+1=}')
+                    nums1[i+1], nums2[i+1] = nums2[i+1], nums1[i+1]
+        print(f'{nums1=}')
+        print(f'{nums2=}')
+        return count
+    
+    def minSwap(self, nums1: List[int], nums2: List[int]) -> int:
+        count = 0
+        nums_len = len(nums1)
+        w, wo = 0, 0 # w == With swapping, wo == without swapping
+        for i in range(nums_len-1, -1, -1):
+            if self.is_swap_needed(nums1, nums2, nums_len, i):
+                temp = w
+                w = 1 + wo
+                wo = temp
+            elif self.can_swap_at_i(nums1, nums2, nums_len, i):
+                temp = w
+                w = 1 + min(w, wo)
+                wo = min(temp, wo)
+            else:
+                w = 1 + w
+                wo = wo
+        return min(w, wo)

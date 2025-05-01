@@ -35,112 +35,120 @@ columns == heights[i].length
 
 # Below sol uses Dijkstras
 
-from sys import maxsize
-        
-class HeapData:
-    def __init__(self, i, j, effort, index=-1):
-        self.i = i
-        self.j = j
-        self.effort = effort
-        self.index = index
-    
-    def __repr__(self):
-        return str(self.i) + ":" + str(self.j) + ":" + str(self.effort) + ":" + str(self.index)
-        
+from typing import List
+
+# https://leetcode.com/problems/swim-in-rising-water/description/ - Related
 class Heap:
-    def __init__(self, n):
-        self.data = [None for i in range(n)]
+    def __init__(self, size):
+        self.data = [None for i in range(size)] # [[diff, (i, j), index], ...]
+        self.max_size = size
         self.cur_size = 0
-        self.max_size = n
     
     def is_full(self):
         return self.cur_size==self.max_size
-
+    
     def is_empty(self):
         return self.cur_size==0
-
+    
     def swap(self, i, j):
         self.data[i], self.data[j] = self.data[j], self.data[i]
-        self.data[i].index = i
-        self.data[j].index = j
-        
-    def minHeapify(self, index):
-        left = index*2+1
-        right = index*2+2
-        min_index = index
-        if left<self.cur_size and self.data[left].effort<self.data[min_index].effort:
-            min_index = left
-        if right<self.cur_size and self.data[right].effort<self.data[min_index].effort:
-            min_index = right
-        if min_index!=index:
-            self.swap(min_index, index)
-            self.minHeapify(min_index)
-            
-    def insert(self, data):
+        self.data[i][2], self.data[j][2] = i, j
+    
+    def compare(self, i, j):
+        pass
+    
+    def heapify(self, i):
+        pass
+    
+    def insert_in_heap(self, data):
         if self.is_full():
             print('Full')
-            return
-        data.index = self.cur_size
-        self.data[self.cur_size] = data
-        self.cur_size+=1
-        index = self.cur_size-1
-        parent_index = (index-1)//2
-        while parent_index>0 and self.data[parent_index].effort>self.data[index].effort:
-            self.swap(parent_index, index)
-            index = parent_index
-            parent_index=(parent_index-1)//2
-        if parent_index==0 and self.data[parent_index].effort>self.data[index].effort:
-            self.swap(parent_index, index)
+        else:
+            index = self.cur_size
+            self.cur_size+=1
+            self.data[index] = data
+            data[2] = index
+            parent_index = (index-1)//2
+            while parent_index>=0 and self.compare(index, parent_index)==-1:
+                self.swap(index, parent_index)
+                index = parent_index
+                parent_index = (index-1)//2
+            return data
     
-    def delete(self):
+    def delete_top(self):
         if self.is_empty():
             print('Empty')
             return None
-        temp = self.data[0]
-        self.cur_size-=1
-        self.swap(0, self.cur_size)
-        self.minHeapify(0)
-        temp.index = -1
-        return temp
-    
+        else:
+            temp = self.data[0]
+            self.cur_size-=1
+            self.swap(0, self.cur_size)
+            self.heapify(0)
+            temp[2] = -1
+            return temp
+
     def update(self, index):
-        parent_index = (index-1)//2
-        while parent_index>0 and self.data[parent_index].effort>self.data[index].effort:
-            self.swap(parent_index, index)
-            index = parent_index
-            parent_index=(parent_index-1)//2
-        if parent_index==0 and self.data[parent_index].effort>self.data[index].effort:
-            self.swap(parent_index, index)
+        if self.is_empty():
+            print('Empty1')
+            return None
+        else:
+            parent_index = (index-1)//2
+            while parent_index>=0 and self.compare(index, parent_index)==-1:
+                self.swap(index, parent_index)
+                index = parent_index
+                parent_index = (index-1)//2
+
+class MinHeap(Heap):
+    def __init__(self, size):
+        Heap.__init__(self, size)
+    
+    def compare(self, i, j):
+        if self.data[i][0]<self.data[j][0]: return -1
+        if self.data[i][0]>self.data[j][0]: return 1
+        return 0
+    
+    def heapify(self, i):
+        left = i*2 + 1
+        right = i*2 + 2
+        min_index = i
+        if left<self.cur_size and self.compare(left, min_index)==-1:
+            min_index = left
+        if right<self.cur_size and self.compare(right, min_index)==-1:
+            min_index = right
+        if i!=min_index:
+            self.swap(i, min_index)
+            self.heapify(min_index)
 
 class Solution:
-    
+
     def is_valid(self, i, j):
-        if i<0 or i>=self.row: return False
-        if j<0 or j>=self.col: return False
+        if i<0 or i>=self.row or j<0 or j>=self.col: return False
         return True
-    
-    def minimumEffortPath(self, heights: list[list[int]]) -> int:
+
+    def minimumEffortPath(self, heights: List[List[int]]) -> int:
+        effort = 0
         self.row = len(heights)
         self.col = 0 if self.row==0 else len(heights[0])
-        adj = [[0,-1,0,1],[-1,0,1,0]]
-        heap = Heap(self.row*self.col)
-        heap_nodes = [[None for j in range(self.col)] for i in range(self.row)]
-        visited = [[False for j in range(self.col)] for i in range(self.row)]
-        for i in range(self.row):
-            for j in range(self.col):
-                heap_node = None
-                if i==0 and j==0: heap_node = HeapData(i,j,0)
-                else: heap_node = HeapData(i,j,maxsize)
-                heap.insert(heap_node)
-                heap_nodes[i][j] = heap_node
+        self.heights = heights
+        adj = [(0, -1), (-1, 0), (0, 1), (1, 0)]
+        heap = MinHeap(self.row*self.col)
+        pos_index_map = dict() # {(i,j):index, ...}
+        visited_pos = set() # {(i, j), ...}
+        pos_index_map[(0, 0)] = heap.insert_in_heap([0, (0, 0), -1])
         while not heap.is_empty():
-            temp = heap.delete()
-            if temp.i==self.row-1 and temp.j==self.col-1: return temp.effort
-            for k in range(4):
-                ti, tj = temp.i + adj[0][k], temp.j + adj[1][k]
-                if self.is_valid(ti, tj) and not visited[ti][tj]:
-                    t_effort = max(temp.effort, abs(heights[temp.i][temp.j]-heights[ti][tj]))
-                    if heap_nodes[ti][tj].effort>t_effort:
-                        heap_nodes[ti][tj].effort = t_effort
-                        heap.update(heap_nodes[ti][tj].index)
+            t_effort, t_pos, t_index = heap.delete_top()
+            effort = max(effort, t_effort)
+            visited_pos.add(t_pos)
+            t_pos_i, t_pos_j = t_pos[0], t_pos[1]
+            if t_pos_i==(self.row-1) and t_pos_j==(self.col-1): return effort
+            for i, j in adj:
+                ti, tj = t_pos_i + i, t_pos_j + j
+                if self.is_valid(ti, tj) and (ti, tj) not in visited_pos:
+                    t_pos_to_cur_pos_effort = abs(heights[t_pos_i][t_pos_j] - heights[ti][tj])
+                    if (ti, tj) not in pos_index_map:
+                        pos_index_map[(ti, tj)] = heap.insert_in_heap([t_pos_to_cur_pos_effort, (ti, tj), -1])
+                    elif pos_index_map[(ti, tj)][0]>t_pos_to_cur_pos_effort:
+                        pos_index_map[(ti, tj)][0] = t_pos_to_cur_pos_effort
+                        # print(f'{t_pos_i=} {t_pos_j=} {ti=} {tj=} {pos_index_map=}')
+                        heap.update(pos_index_map[(ti, tj)][2])
         return -1

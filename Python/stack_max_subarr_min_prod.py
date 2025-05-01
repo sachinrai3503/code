@@ -37,30 +37,31 @@ Constraints:
 1 <= nums[i] <= 107
 """
 
+from sys import maxsize
 from typing import List
 
 class Solution:
+
     def maxSumMinProduct(self, nums: List[int]) -> int:
+        max_prod = -maxsize
         nums_len = len(nums)
-        stck = list()
-        pre_sum = list()
+        prefix_sum = [0]
+        m = 1000000007
         t_sum = 0
-        max_sum = 0
+        stck = list() # [(i, left_i), ...] 
         for i in range(nums_len):
             num = nums[i]
             t_sum+=num
-            pre_sum.append(t_sum)
-            while stck and nums[stck[-1]]>=num:
-                min_ele = nums[stck.pop()]
-                right_sum = 0 if i<1 else pre_sum[-2]
-                left_sum = 0 if not stck else pre_sum[stck[-1]]
-                temp_value = min_ele*(right_sum-left_sum)
-                max_sum = max(max_sum, temp_value)
-            stck.append(i)
+            prefix_sum.append(t_sum)
+            while stck and nums[stck[-1][0]]>=num:
+                ti, t_li = stck.pop()
+                max_prod = max(max_prod, nums[ti]*(prefix_sum[i]-prefix_sum[t_li+1]))
+            if not stck: stck.append((i, -1))
+            else:
+                stck.append((i, stck[-1][0]))
+        #     print(f'{stck=}')
+        # print(f'{prefix_sum=}')
         while stck:
-            min_ele = nums[stck.pop()]
-            right_sum = pre_sum[-1]
-            left_sum = 0 if not stck else pre_sum[stck[-1]]
-            temp_value = min_ele*(right_sum-left_sum)
-            max_sum = max(max_sum, temp_value)
-        return max_sum%1000000007
+            ti, t_li = stck.pop()
+            max_prod = max(max_prod, nums[ti]*(prefix_sum[-1]-prefix_sum[t_li+1]))
+        return max_prod%1000000007

@@ -39,6 +39,7 @@ Constraints:
 1 <= target[i] <= 10^5
 """
 from sys import maxsize
+from typing import List
 
 def get_index_map(nums):
     index_map = {}
@@ -52,7 +53,8 @@ def get_index_map(nums):
     return index_map
 
 class Solution:
-    def minNumberOperations(self, target: list[int]) -> int:
+    # This is slow
+    def minNumberOperations1(self, target: list[int]) -> int:
         index_map = get_index_map(target)
         # print(index_map)
         length = len(target)
@@ -72,4 +74,16 @@ class Solution:
                     active_partition-=1
             base_element = num
             # print(num,base_element,is_done,active_partition,'count=',count)
+        return count
+
+    # This is much faster
+    # O(n) time, O(1) space
+    def minNumberOperations(self, target: List[int]) -> int:
+        count = 0
+        prev = -maxsize
+        for num in target:
+            if num<prev:
+                count+=(prev-num)
+            prev = num
+        count+=prev
         return count

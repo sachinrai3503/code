@@ -1,40 +1,43 @@
 # https://www.geeksforgeeks.org/maximum-product-subarray/
 # https://leetcode.com/problems/maximum-product-subarray/
+"""
+Given an integer array nums, find a subarray that has the largest product, 
+ and return the product.
 
-INT_MIN = -999999999
+The test cases are generated so that the answer will fit in a 32-bit integer.
 
-def find_max_prod_sub_arr(ip_list):
-    max_prod, s, e = INT_MIN, 0, -1
-    t_p1, t_p2, t_s1, t_s2 = 1, 1, 0, -1
-    flag_1st_neg = False
-    for i in range(len(ip_list)):
-        t_p1*=ip_list[i]
-        if flag_1st_neg:
-            t_p2*=ip_list[i]
-        if t_p1 >= max_prod:
-            max_prod = t_p1
-            s = t_s1
-            e = i
-        if flag_1st_neg and t_p2 >= max_prod:
-            max_prod = t_p2
-            s = t_s2
-            e = i
-        if ip_list[i] == 0:
-            flag_1st_neg = False
-            t_s1, t_s2 = i+1, -1
-            t_p1, t_p2 = 1, 1
-        elif ip_list[i] < 0:
-            flag_1st_neg = True
-            t_s2 = i+1
-    if max_prod == 0:
-        s, e = 0, len(ip_list)-1
-    print('max prod= ',max_prod, ' s=',s, ' e=',e)
-    print('op= ', ip_list[s:e+1])
+Example 1:
+Input: nums = [2,3,-2,4]
+Output: 6
+Explanation: [2,3] has the largest product 6.
 
-def main():
-    ip_list = [-2,0,-1]
-    print('ip= ',ip_list)
-    find_max_prod_sub_arr(ip_list)
+Example 2:
+Input: nums = [-2,0,-1]
+Output: 0
+Explanation: The result cannot be 2, because [-2,-1] is not a subarray.
 
-if __name__ == '__main__':
-    main()
+Constraints:
+1 <= nums.length <= 2 * 104
+-10 <= nums[i] <= 10
+The product of any subarray of nums is guaranteed to fit in a 32-bit integer.
+"""
+
+from sys import maxsize
+from typing import List
+
+class Solution:
+    def maxProduct(self, nums: List[int]) -> int:
+        max_prod = -maxsize
+        p1, p2 = 1, None
+        for num in nums:
+            p1*=num
+            if p2 is not None:
+                p2*=num
+                max_prod = max(max_prod, p2)
+            max_prod = max(max_prod, p1)
+            if p1<0 and p2 is None:
+                p2 = 1
+            elif p1==0:
+                p1, p2 = 1, None
+            # print(f'{num=} {p1=} {p2=} {max_prod=}')
+        return max_prod

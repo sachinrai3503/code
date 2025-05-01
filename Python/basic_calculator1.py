@@ -29,56 +29,46 @@ Every number and running calculation will fit in a signed 32-bit integer.
 """
 
 class Solution:
-    
-    def evaluate(self, a, b, oper):
-        if oper=='+': return a+b
-        else: return a-b
-    
-    def is_digit(self, c):
-        if 48<=ord(c)<=57: return True
-        return False
-    
-    def operator(self, num_list, oper_stck):
-        oper = oper_stck.pop()
-        b = num_list.pop()
-        a = num_list.pop()
-        num_list.append(self.evaluate(a,b,oper))
-    
+
+    def net_sign(self, a, b):
+        if a is None: a = '+'
+        if b is None: b = '+'
+        if a=='+': return b
+        if a=='-': return '+' if b=='-' else '-'
+
+    def compute(self, a, opr, b):
+        if opr=='+': return a + b
+        if opr=='-': return a-b
+        return None
+
     def calculate(self, s: str) -> int:
+        op = 0
+        s_len = len(s)
         stck = list()
-        num_list = list()
-        num = 0
-        is_prev_digit = False
-        is_operand_missing = True
-        for c in s:
-            # print(num_list, stck, num, c)
-            if self.is_digit(c):
-                num = num*10 + ord(c)-48
-                is_prev_digit = True
-                is_operand_missing = False
+        sign = None
+        i = 0
+        while i<s_len:
+            char = s[i]
+            if char==' ':
+                pass
+            elif char=='+': sign = '+'
+            elif char=='-': sign = '-'
+            elif char=='(':
+                bracket_sign = '+' if not stck else stck[-1]
+                sign = '+' if sign is None else sign
+                stck.append(self.net_sign(bracket_sign, sign))
+                sign = None
+            elif char==')':
+                stck.pop()
             else:
-                if is_prev_digit: num_list.append(num)
                 num = 0
-                is_prev_digit = False
-                if c==' ': continue
-                elif c=='+' or c=='-':
-                    if len(stck)>0 and stck[-1]!='(':
-                        self.operator(num_list, stck)
-                    if is_operand_missing: num_list.append(0)
-                    is_operand_missing = False
-                    stck.append(c)
-                elif c=='(': 
-                    stck.append(c)
-                    is_operand_missing = True
-                elif c==')':
-                    if stck[-1]!='(':
-                        self.operator(num_list, stck)
-                    stck.pop()
-                    is_operand_missing = False
-        # print(num_list, stck, num)
-        if is_prev_digit: num_list.append(num)
-        num = 0
-        # print(num_list, stck, num)
-        if len(stck)>0:
-            self.operator(num_list, stck)
-        return num_list[0]
+                while i<s_len and '0'<=s[i]<='9':
+                    num = num*10 + (ord(s[i])-48)
+                    i+=1
+                bracket_sign = '+' if not stck else stck[-1]
+                sign = '+' if sign is None else sign
+                op = self.compute(op, self.net_sign(bracket_sign, sign), num)
+                sign = None
+                i-=1
+            i+=1
+        return op

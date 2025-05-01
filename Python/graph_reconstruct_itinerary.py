@@ -31,48 +31,39 @@ fromi and toi consist of uppercase English letters.
 fromi != toi
 """
 
+from typing import List
+
 class Graph:
-    def __init__(self, tickets):
+    def __init__(self, edges):
         self.data = dict()
-        self.add_edges(tickets)
-        self.sort_values()
+        self.add_edges(edges)
     
-    def add_edges(self, tickets):
-        for ticket in tickets:
-            src, dest = ticket
-            dest_list = self.data.get(src, list())
-            dest_list.append(dest)
-            self.data[src] = dest_list
-    
-    def sort_values(self):
-        for src in self.data:
-            self.data.get(src).sort()
+    def add_edges(self, edges):
+        for u,v in edges:
+            adj_ver = self.data.get(u, list())
+            adj_ver.append(v)
+            self.data[u] = adj_ver
+        
+    def get_adj_vertexs(self, u):
+        return self.data.get(u, [])
 
 class Solution:
-    
-    def get_itinerary(self, src, ticket_used, cur_op, op):
-        if ticket_used==self.ticket_count:
-            op.extend(cur_op)
-            return True
-        dests = self.graph.data.get(src, None)
-        if dests is None: return False
-        dests_len = len(dests)
-        for i in range(dests_len):
-            dest = dests[i]
-            cur_op.append(dests.pop(i))
-            # print(dests, cur_op)
-            if self.get_itinerary(dest, ticket_used+1, cur_op, op): return True
-            dests.insert(i, dest)
-            cur_op.pop()
-            # print("--",dests, cur_op)
-        return False
-    
-    def findItinerary(self, tickets: list[list[str]]) -> list[str]:
-        op = list()
-        self.graph = Graph(tickets)
-        # print(self.graph.data)
-        self.ticket_count = len(tickets)
-        op.append('JFK')
-        self.get_itinerary('JFK', 0, [], op)
-        # print(self.graph.data)
-        return op
+
+    def hierholzer(self, start, circuit, graph):
+        path = list()
+        path.append(start)
+        while path:
+            u = path[-1]
+            if graph.get_adj_vertexs(u):
+                v = graph.get_adj_vertexs(u).pop()
+                path.append(v)
+            else:
+                circuit.append(path.pop())
+
+    def findItinerary(self, tickets: List[List[str]]) -> List[str]:
+        tickets.sort(key = lambda x : x[1], reverse = True)
+        graph = Graph(tickets)
+        circuit = list()
+        self.hierholzer('JFK', circuit, graph)
+        # print(f'{circuit=}')
+        return circuit[::-1]

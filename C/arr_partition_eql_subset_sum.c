@@ -19,6 +19,8 @@ Constraints:
 1 <= nums[i] <= 100
 */
 
+// Refer Python/dp_arr_partition_eql_subset_sum.py for more approaches to this.
+
 #include <stdio.h>
 #include <malloc.h>
 #define true 1

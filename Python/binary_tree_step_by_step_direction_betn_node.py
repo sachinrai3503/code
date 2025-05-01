@@ -33,6 +33,8 @@ All the values in the tree are unique.
 startValue != destValue
 """
 
+from typing import List, Optional
+
 # Definition for a binary tree node.
 class TreeNode:
     def __init__(self, val=0, left=None, right=None):
@@ -40,62 +42,53 @@ class TreeNode:
         self.left = left
         self.right = right
 class Solution:
-    
-    def __init__(self):
-        self.s = 0
-    
-    def get_path_from(self, root, dest, cur_child, path:list):
+
+    def find_in_child(self, root, target, op1, op2, child_type):
         if root is None: return False
-        path.append(cur_child)
-        if root.val==dest: return True
-        left = self.get_path_from(root.left, dest, 'L', path)
-        if left: return left
-        right = self.get_path_from(root.right, dest, 'R', path)
-        if right: return True
-        path.pop()
+        op1.append(child_type)
+        op2.append('U')
+        if root.val == target: return True
+        if self.find_in_child(root.left, target, op1, op2, 'L'):
+            return True
+        if self.find_in_child(root.right, target, op1, op2, 'R'):
+            return True
+        op1.pop()
+        op2.pop()
         return False
 
-    def get_path_between(self, root, src, dest):
-        if root == None: return None
-        if root.val==src:
+    def find_directions(self, root, start, dest, op1, op2, child_type):
+        if root is None: return
+        if root.val==start or root.val==dest:
             self.s = 1
-            t_path = list()
-            is_path = self.get_path_from(root, dest, '', t_path)
-            if is_path:
+            self.other = dest if root.val==start else start
+            if self.find_in_child(root.left, self.other, op1, op2, 'L') or \
+                self.find_in_child(root.right, self.other, op1, op2, 'R'):
                 self.s = 2
-                return t_path
-            return ['U']
-        left = self.get_path_between(root.left, src, dest)
-        if self.s==2:
-            return left
+                return
+            op1.append('U')
+            op2.append(child_type)
+            return
+        self.find_directions(root.left, start, dest, op1, op2, 'L')
         if self.s==1:
-            if root.val==dest:
+            if self.find_in_child(root.right, self.other, op1, op2, 'R'):
                 self.s = 2
-            else:
-                t_path = list()
-                is_path = self.get_path_from(root.right, dest, 'R', t_path)
-                if is_path:
-                    self.s = 2
-                    return left + t_path
-                left.append('U')
-            return left
-        right = self.get_path_between(root.right, src, dest)
-        if self.s==2: return right
+                return
+            op1.append('U')
+            op2.append(child_type)
+            return
+        self.find_directions(root.right, start, dest, op1, op2, 'R')
         if self.s==1:
-            if root.val==dest:
-                self.s = 2
-            else:
-                t_path = list()
-                is_path = self.get_path_from(root.left, dest, 'L', t_path)
-                if is_path:
-                    self.s = 2
-                    return right + t_path
-                right.append('U')
-            return right
-        return None
-            
-    
-    def getDirections(self, root: TreeNode, startValue: int, destValue: int) -> str:
-        path = self.get_path_between(root, startValue, destValue)
-        # print(path)
-        return ''.join(path)
+            op1.append('U')
+            op2.append(child_type)
+        return
+
+    def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+        op1 = list()
+        op2 = list()
+        self.s = 0
+        self.other = None
+        self.find_directions(root, startValue, destValue, op1, op2, None)
+        # print(f'{self.s=} {self.other=} {op1=} {op2=}')
+        if self.s!=2:
+            return None
+        return ''.join(op1) if self.other==destValue else ''.join(op2[::-1])
